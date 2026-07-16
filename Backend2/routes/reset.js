@@ -1,11 +1,11 @@
 const express = require('express');
 const resetRouter = express.Router();
-const resetController = require('../controllers/resetController');
+const authController = require('../controllers/authenticationController');
 
 resetRouter.route("/request")
-    .post(resetController.requestPasswordReset);
+    .post(authController.handleResetRequest);
 
 resetRouter.route("/confirm")
-    .post(resetController.handleReset);
+    .post(authController.handleReset);
 
-module.exports =  resetRouter;
+module.exports = resetRouter;
