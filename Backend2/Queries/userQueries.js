@@ -1,9 +1,38 @@
-const pool = require("../config/dbConnection");
+const db = require("../config/dbConnection");
+const { eq } = require("drizzle-orm");
+const { passwordResetTokens } = require("../models/schema/users");
 
-const getUserByEmail = async () => {}
+const getUserByEmail = async (email) => {
+    const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
 
-const createUser = async () => {}
+    return user;
+};
 
-const changeUserPassword = (userID, hashedPwd) => {}
+const createUser = async (data) => {
+    const [user] = await db
+        .insert(users)
+        .values(data)
+        .returning();
+
+    return user;
+};
+
+const changeUserPassword = async (userId, hashedPassword) => {
+    const [user] = await db
+        .update(users)
+        .set({
+            passwordHash: hashedPassword,
+            updatedAt: new Date(),
+        })
+        .where(eq(users.id, userId))
+        .returning();
+
+    return user;
+};
+
 
 module.exports = { getUserByEmail, createUser, changeUserPassword }

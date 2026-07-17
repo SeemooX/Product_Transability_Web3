@@ -1,20 +1,15 @@
 const userQueries = require('../Queries/userQueries');
 const resetTokenQueries = require('../Queries/resetTokenQueries');
 const bcrypt = require('bcrypt');
-const {v4: uuid} = require('uuid');
+const { v4: uuid } = require('uuid');
+const ethers = require('ethers');
 
 const createUser = async (req, res) => {
-    const { name, email, role, phone, password } = req.body;
+    const { fullName, email, password, role, walletAddress, companyName } = req.body;
     if (!email || !password || !phone || !gender) return res.status(400).json({ 'message': 'You need to provide all of the fields' });
 
-    if (!name || typeof name !== "string" || name.trim() === "")
-        return res.status(400).json({ message: "First name is required and must be a string" });
-
-    const cleanPhoneNumber = phone.trim();
-    const phoneRegex = /^\+?[0-9]{7,15}$/;
-    if (!cleanPhoneNumber || !phoneRegex.test(cleanPhoneNumber)) {
-        return res.status(400).json({ message: "Invalid phone number" });
-    }
+    if (!fullName || typeof fullName !== "string" || fullName.trim() === "")
+        return res.status(400).json({ message: "full name is required and must be a string" });
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -25,15 +20,26 @@ const createUser = async (req, res) => {
         return res.status(400).json({ message: 'Password must be at least 8 characters' });
     }
 
+    import { isAddress } from "ethers";
+
+    if (!ethers.isAddress(walletAddress.trim())) {
+        throw new Error("Invalid Ethereum wallet address");
+    }
+
+    companyName = companyName.trim()
+    if (!/^[a-zA-Z0-9\s&.,'-]{1,100}$/.test(companyName)) {
+        return res.status(400).json({ message: 'Invalide company name' });
+    }
+
     try {
-        const userFound = await userCollection.User.findOne({ email: email.toLowerCase() });
+        const userFound = await userQueries.getUserByEmail(email.toLowerCase());
         if (!userFound) res.status(409).json({ message: "This account already registered" });
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const passwordHash = await bcrypt.hash(password, 10);
 
-        const addedUser = await userQueries.createUser(name, email, role, cleanPhoneNumber, hashedPassword);
+        const addedUser = await userQueries.createUser(fullName, email, passwordHash, role, walletAddress, companyName);
         const user = {
-            name: addedUser.name,
+            fullName: addedUser.full_name,
             email: addedUser.email
         }
 
@@ -44,17 +50,17 @@ const createUser = async (req, res) => {
     }
 }
 
-const handleLogin = async (req, res ) => {
+const handleLogin = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) return res.status(400).json({ message: 'You need to provide both the password and the email' });
 
     const foundedUser = await userQueries.getUserByEmail(email.toLowerCase());
 
-    if(!foundedUser) res.status(401).json({ message: "Invalid email or password" });
+    if (!foundedUser) res.status(401).json({ message: "Invalid email or password" });
 
     const isPwdMatch = await bcrypt.compare(password, foundedUser.password_hash);
-    if(isPwdMatch) {
+    if (isPwdMatch) {
         const accessToken = jwt.sign(
             {
                 userInfo: {
@@ -93,7 +99,7 @@ const handleResetRequest = (req, res) => {
         const resetToken = uuid();
         const expirationDate = new Date(Date.now() + 60 * 60 * 1000);
 
-        await resetTokenQueries.insertToken(user.id_user ,resetToken, expirationDate);
+        await resetTokenQueries.insertToken(user.id_user, resetToken, expirationDate);
 
         const resetLink = `http://localhost:1573/reset/reset-password/${resetToken}`;
 
@@ -139,7 +145,7 @@ const handleResetRequest = (req, res) => {
 }
 
 const handleReset = (req, res) => {
-    const { token , newPassword } = req.body;
+    const { token, newPassword } = req.body;
 
     if (!token || !newPassword) {
         return res.status(400).json({ message: "Token and new password are required" });
@@ -150,7 +156,7 @@ const handleReset = (req, res) => {
     }
 
     try {
-        const tokenResult = await resetTokenQueries.retreiveToken(token);
+        const tokenResult = await resetTokenQueries.retrieveToken(token);
 
         if (!tokenResult) {
             return res.status(400).json({ message: "Invalid or expired token" });
@@ -169,7 +175,7 @@ const handleReset = (req, res) => {
 
         await resetTokenQueries.deleteToken(token);
 
-        return res.status(200).json({ message: "Password has been reset successfully" }); 
+        return res.status(200).json({ message: "Password has been reset successfully" });
     } catch (error) {
         console.error(err);
         return res.status(500).json({ message: "Server error", error: err.message });
