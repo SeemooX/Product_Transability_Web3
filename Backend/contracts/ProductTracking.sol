@@ -24,7 +24,7 @@ contract ProductTracking {
         address manufacturer;
         bytes32 metadataHash;
         uint256 createdAt;
-        bool exits;
+        bool exists;
         Status currentStatus;
     }
 
@@ -45,8 +45,8 @@ contract ProductTracking {
     );
 
 
-    mapping(bytes32 -> Product) products; /* productId  -> product */
-    mapping(bytes32 -> TraceabilityEvent[]) productHistory; /* productId  -> history */
+    mapping(bytes32 => Product) products; /* productId  => product */
+    mapping(bytes32 => TraceabilityEvent[]) productHistory; /* productId  => history */
 
 
     function createProduct(bytes32 _productId, bytes32 _metadataHash, bytes32 _eventHash) external {
@@ -94,13 +94,13 @@ contract ProductTracking {
         );
     }
 
-    function getProduct(bytes32 _productId) external view {
+    function getProduct(bytes32 _productId) external view returns (Product memory) {
         require(_productId != bytes32(0), "Empty productID paramater");
 
         return products[_productId];
     }
 
-    function getProductHistory(bytes32 _productId) external view {
+    function getProductHistory(bytes32 _productId) external view returns (TraceabilityEvent[] memory) {
         require(_productId != bytes32(0), "Empty productID paramater");
 
         return productHistory[_productId];
@@ -110,7 +110,7 @@ contract ProductTracking {
         require(_productId != bytes32(0), "Empty productID paramater");
         require(products[_productId].exists, "Product does not exists");
         
-        if(products[_productId]metadataHash != _metadataHash) {
+        if(products[_productId].metadataHash != _metadataHash) {
             return false;
         }
 
