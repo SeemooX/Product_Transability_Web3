@@ -70,6 +70,7 @@ contract ProductTracking {
     }
 
     function addTraceabilityEvent(bytes32 _productId, Status stepType, bytes32 _eventHash) public {
+        require(_productId != bytes32(0), "Empty productID paramater");
         require(products[_productId].exists, "Product does not exists");
 
         products[_productId].currentStatus = stepType;
@@ -92,4 +93,40 @@ contract ProductTracking {
             block.timestamp
         );
     }
+
+    function getProduct(bytes32 _productId) external view {
+        require(_productId != bytes32(0), "Empty productID paramater");
+
+        return products[_productId];
+    }
+
+    function getProductHistory(bytes32 _productId) external view {
+        require(_productId != bytes32(0), "Empty productID paramater");
+
+        return poductHistory[_productId];
+    }
+
+    function verifyProduct(bytes32 _productId, bytes32 _metadataHash) external view returns (bool) {
+        require(_productId != bytes32(0), "Empty productID paramater");
+        require(products[_productId].exists, "Product does not exists");
+        
+        if(products[_productId]metadataHash != _metadataHash) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function productExists(bytes32 _productId) external view returns (bool) {
+        require(_productId != bytes32(0), "Empty productID paramater");
+
+        return products[_productId].exists;
+    }
+
+    function getCurrentStatus(bytes32 _productId) external view returns (Status) {
+        require(_productId != bytes32(0), "Empty productID paramater");
+
+        return products[_productId].currentStatus;
+    }
+
 }
