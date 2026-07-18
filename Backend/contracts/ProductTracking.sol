@@ -103,7 +103,7 @@ contract ProductTracking {
     function getProductHistory(bytes32 _productId) external view {
         require(_productId != bytes32(0), "Empty productID paramater");
 
-        return poductHistory[_productId];
+        return productHistory[_productId];
     }
 
     function verifyProduct(bytes32 _productId, bytes32 _metadataHash) external view returns (bool) {
