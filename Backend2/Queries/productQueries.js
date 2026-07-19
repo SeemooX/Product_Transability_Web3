@@ -1,0 +1,20 @@
+const db = require("../config/dbConnection");
+const { eq } = require("drizzle-orm");
+const { products } = require("../models/schema/products");
+
+const checkProductUniqueness = async (reference, serialNumber) => {
+    const [product] = await db
+        .select()
+        .from(products)
+        .where(
+            or(
+                eq(products.reference, reference),
+                eq(products.serialNumber, serialNumber)
+            )
+        )
+        .limit(1);
+
+    return product;
+};
+
+module.exports = { checkProductUniqueness }
