@@ -1,12 +1,13 @@
 const { v4: uuid } = require('uuid');
 const { ethers } = require('ethers');
 const QRCode = require('qrcode');
+const db = require("../config/dbConnection");
 const userQueries = require('../Queries/userQueries');
 const productQueries = require('../Queries/productQueries');
 const productStatusHistoryQueries = require('../Queries/productStatusHistoryQueries');
 const { hashMetadata } = require('../utils/hashMetadata');
 const { CONTRACT_FUNCTIONS } = require('../utils/contractABI');
-const db = require("../config/dbConnection");
+const { provider } = require('../utils/provider');
 
 const prepareProduct = async (req, res) => {
     try {
@@ -67,9 +68,33 @@ const prepareProduct = async (req, res) => {
 
 const confirmProduct = async (req, res) => {
     try {
-        const { productID, txHash, name, reference, serialNumber, description } = req.body;
+        const { productID, txHash, name, reference, serialNumber, description } = req.body; // Consider later using Redis cache
 
-        const provider = new ethers.JsonRpcProvider(process.env.PUBLIC_RPC_URL);
+        if (!/^[A-Za-z0-9 _-]{1,100}$/.test(name.trim())) {
+            return res.status(400).json({ error: "Invalid name." });
+        }
+
+        if (!/^[A-Za-z0-9_-]{1,100}$/.test(reference.trim())) {
+            return res.status(400).json({ error: "Invalid reference." });
+        }
+
+        if (!/^[A-Za-z0-9-]{1,50}$/.test(serialNumber.trim())) {
+            return res.status(400).json({ error: "Invalid serial number." });
+        }
+
+        if (description) {
+            description = description.trim();
+            if (description.length > 1000) {
+                return res.status(400).json({ error: "Description is too long." });
+            }
+        }
+
+        const existing = await productQueries.getByBlockchainId(productID);
+        if (existing) {
+            return res.status(409).json({
+                error: "Product already confirmed"
+            });
+        }
 
         const apiCaller = await userQueries.getUserById(req.id);
 
@@ -77,6 +102,26 @@ const confirmProduct = async (req, res) => {
             return res.status(400).json({
                 error: "Invalid transaction hash"
             });
+        }
+
+        const receipt = await provider.getTransactionReceipt(txHash.trim());
+        /* Example Output
+        {
+            status: 1, // This field indicates transactin succeded or failed
+            blockNumber: 123456,
+            gasUsed: 21000n,
+            logs: [ ... ]
+        }
+        */
+        if (!receipt) {
+            return res.status(400).json({
+                error: "Transaction not mined yet"
+            });
+        }
+        if (receipt.status === 0) {
+            return res.status(400).json({
+                error: "Transaction failed"
+            })
         }
 
         const tx = await provider.getTransaction(txHash.trim());
@@ -107,26 +152,6 @@ const confirmProduct = async (req, res) => {
             })
         }
 
-        const receipt = await provider.getTransactionReceipt(txHash.trim());
-        /* Example Output
-        {
-            status: 1, // This field indicates transactin succeded or failed
-            blockNumber: 123456,
-            gasUsed: 21000n,
-            logs: [ ... ]
-        }
-        */
-        if (!receipt) {
-            return res.status(400).json({
-                error: "Transaction not mined yet"
-            });
-        }
-        if (receipt.status === 0) {
-            return res.status(400).json({
-                error: "Transaction failed"
-            })
-        }
-
         const iface = new ethers.Interface(CONTRACT_FUNCTIONS);
 
         // It will read the first 4 bytes, and looks for the matching selector in the ABI. If found it gets decoded
@@ -142,6 +167,11 @@ const confirmProduct = async (req, res) => {
             });
         }
 
+        if (!decoded) {
+            return res.status(400).json({
+                error: "Failed to extract information"
+            });
+        }
         if (decoded.args[0] !== productID) {
             return res.status(400).json({
                 error: "Invalid product ID"
@@ -170,18 +200,17 @@ const confirmProduct = async (req, res) => {
         // Drizzle automatically starts BEGIN, COMMIT of things are complete, ROLLBACK if an error is thrown
         await db.transaction(async (transaction) => {
             const manufacturerId = req.id;
-            const blockchainProductId = productID;
             const currentStatus = "CREATED";
             const qrCode = {
-                id: uuid(),
-                email: req.email.toLowerCase()
+                productId: productID,
             };
 
-            await productQueries.insertProduct(transaction, { manufacturerId, name, reference, serialNumber, description, currentStatus, qrCode, blockchainProductId, metadataHash });
+            const insertedProduct = await productQueries.insertProduct(transaction, { id_product: productID, manufacturerId, name, reference, serialNumber, description, currentStatus, qrCode, metadataHash });
 
             const performedBy = req.id;
             const location = "Factory";
             const stepTypeId = 0;
+            const productId = insertedProduct.id_product;
             await productStatusHistoryQueries.insertProductStatusHistory(transaction, { productId, stepTypeId, location, performedBy, txHash })
         })
 

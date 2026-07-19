@@ -26,4 +26,14 @@ const insertProduct = async (tx, data) => {
     return product;
 };
 
-module.exports = { checkProductUniqueness, insertProduct }
+const getByBlockchainId = async (productID) => {
+    const [product] = await db
+        .select()
+        .from(products)
+        .where( eq(products.id_product, productID) )
+        .limit(1);
+
+    return product
+}
+
+module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId }
