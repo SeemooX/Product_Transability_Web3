@@ -17,4 +17,13 @@ const checkProductUniqueness = async (reference, serialNumber) => {
     return product;
 };
 
-module.exports = { checkProductUniqueness }
+const insertProduct = async (tx, data) => {
+    const [product] = await tx
+        .insert(products)
+        .values(data)
+        .returning();
+
+    return product;
+};
+
+module.exports = { checkProductUniqueness, insertProduct }

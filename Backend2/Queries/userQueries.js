@@ -12,6 +12,16 @@ const getUserByEmail = async (email) => {
     return user;
 };
 
+const getUserById = async (userId) => {
+    const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id_user, userId))
+        .limit(1);
+
+    return user;
+};
+
 const createUser = async (data) => {
     const [user] = await db
         .insert(users)
@@ -35,4 +45,4 @@ const changeUserPassword = async (userId, hashedPassword) => {
 };
 
 
-module.exports = { getUserByEmail, createUser, changeUserPassword }
+module.exports = { getUserByEmail, createUser, changeUserPassword, getUserById }

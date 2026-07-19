@@ -1,12 +1,18 @@
 const { v4: uuid } = require('uuid');
+const { ethers } = require('ethers');
+const QRCode = require('qrcode');
+const userQueries = require('../Queries/userQueries');
 const productQueries = require('../Queries/productQueries');
+const productStatusHistoryQueries = require('../Queries/productStatusHistoryQueries');
 const { hashMetadata } = require('../utils/hashMetadata');
+const { CONTRACT_FUNCTIONS } = require('../utils/contractABI');
+const db = require("../config/dbConnection");
 
 const prepareProduct = async (req, res) => {
     try {
         const { name, reference, serialNumber, description } = req.body;
-        
-        if (!name || !reference || !serialNumber) return res.status(400).json({ error : 'You need to provide the <name, refrence, and serial number>' });
+
+        if (!name || !reference || !serialNumber) return res.status(400).json({ error: 'You need to provide the <name, refrence, and serial number>' });
 
         if (!/^[A-Za-z0-9 _-]{1,100}$/.test(name.trim())) {
             return res.status(400).json({ error: "Invalid name." });
@@ -59,6 +65,131 @@ const prepareProduct = async (req, res) => {
     }
 }
 
-const confirmProduct = async (req, res) => { }
+const confirmProduct = async (req, res) => {
+    try {
+        const { productID, txHash, name, reference, serialNumber, description } = req.body;
+
+        const provider = new ethers.JsonRpcProvider(process.env.PUBLIC_RPC_URL);
+
+        const apiCaller = await userQueries.getUserById(req.id);
+
+        if (!ethers.isHexString(txHash, 32)) {
+            return res.status(400).json({
+                error: "Invalid transaction hash"
+            });
+        }
+
+        const tx = await provider.getTransaction(txHash.trim());
+        /* Example Output
+        {
+            hash: "...",
+            from: "0x...",
+            to: "0x...",
+            value: 1000000000000000000n,
+            gasLimit: 21000n,
+            nonce: 15,
+            data: "0x..."
+        }
+        */
+        if (!tx) {
+            return res.status(400).json({
+                error: "Transaction not found"
+            })
+        }
+        if (tx.from.toLowerCase() !== apiCaller.walletAddress.toLowerCase()) {
+            return res.status(400).json({
+                error: "You did not make this transaction"
+            })
+        }
+        if (tx.to.toLowerCase() !== process.env.PRODUCT_TRACKING_ADDRESS) {
+            return res.status(400).json({
+                error: "Transaction is not for the ProductTracking contract"
+            })
+        }
+
+        const receipt = await provider.getTransactionReceipt(txHash.trim());
+        /* Example Output
+        {
+            status: 1, // This field indicates transactin succeded or failed
+            blockNumber: 123456,
+            gasUsed: 21000n,
+            logs: [ ... ]
+        }
+        */
+        if (!receipt) {
+            return res.status(400).json({
+                error: "Transaction not mined yet"
+            });
+        }
+        if (receipt.status === 0) {
+            return res.status(400).json({
+                error: "Transaction failed"
+            })
+        }
+
+        const iface = new ethers.Interface(CONTRACT_FUNCTIONS);
+
+        // It will read the first 4 bytes, and looks for the matching selector in the ABI. If found it gets decoded
+        let decoded;
+        try {
+            decoded = iface.parseTransaction({
+                data: tx.data,
+                value: tx.value,
+            });
+        } catch {
+            return res.status(400).json({
+                error: "Invalid contract call",
+            });
+        }
+
+        if (decoded.args[0] !== productID) {
+            return res.status(400).json({
+                error: "Invalid product ID"
+            });
+        }
+        if (!decoded || decoded.name !== "createProduct") {
+            return res.status(400).json({
+                error: "Transaction must call createProduct"
+            });
+        }
+
+        const metadata = {
+            name: name.trim(),
+            reference: reference.trim(),
+            serialNumber: serialNumber.trim(),
+            description: description ? description.trim() : ""
+        }
+        const metadataString = JSON.stringify(metadata);
+        const metadataHash = hashMetadata(metadataString);
+        if (metadataHash !== decoded.args[1]) {
+            return res.status(400).json({
+                error: "Data should never be changed"
+            });
+        }
+
+        // Drizzle automatically starts BEGIN, COMMIT of things are complete, ROLLBACK if an error is thrown
+        await db.transaction(async (transaction) => {
+            const manufacturerId = req.id;
+            const blockchainProductId = productID;
+            const currentStatus = "CREATED";
+            const qrCode = {
+                id: uuid(),
+                email: req.email.toLowerCase()
+            };
+
+            await productQueries.insertProduct(transaction, { manufacturerId, name, reference, serialNumber, description, currentStatus, qrCode, blockchainProductId, metadataHash });
+
+            const performedBy = req.id;
+            const location = "Factory";
+            const stepTypeId = 0;
+            await productStatusHistoryQueries.insertProductStatusHistory(transaction, { productId, stepTypeId, location, performedBy, txHash })
+        })
+
+        return res.status(200).json({ message: "Product successfully created" });
+    } catch (error) {
+        console.error("sever error", error);
+        return res.status(500).json({ error: error.message });
+    }
+}
 
 module.exports = { prepareProduct, confirmProduct };
