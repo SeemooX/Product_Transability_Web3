@@ -6,7 +6,7 @@ const ethers = require('ethers');
 
 const createUser = async (req, res) => {
     const { fullName, email, password, role, walletAddress, companyName } = req.body;
-    if (!email || !password || !phone || !gender) return res.status(400).json({ 'message': 'You need to provide all of the fields' });
+    if (!email || !password || !role || !walletAddress) return res.status(400).json({ 'message': 'You need to provide all of the fields' });
 
     if (!fullName || typeof fullName !== "string" || fullName.trim() === "")
         return res.status(400).json({ message: "full name is required and must be a string" });
