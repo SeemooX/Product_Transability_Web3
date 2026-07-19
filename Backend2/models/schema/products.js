@@ -4,7 +4,7 @@ import { users } from "./users.js";
 export const products = pgTable(
     "products",
     {
-        id_product: uuid("id_product").defaultRandom().primaryKey(),
+        id_product: uuid("id_product").primaryKey(),
         manufacturerId: uuid("manufacturer_id").references(() => users.id_user).notNull(),
         name: varchar("name", { length: 150 }).notNull(),
         reference: varchar("reference", { length: 80 }).unique(),
@@ -12,7 +12,6 @@ export const products = pgTable(
         description: text("description"),
         currentStatus: varchar("current_status", { length: 40, }).notNull(),
         qrCode: text("qr_code").unique(),
-        blockchainProductId: bigint("blockchain_product_id", { mode: "number", }),
         metadataHash: varchar("metadata_hash", { length: 66, }),
         createdAt: timestamp("created_at", { withTimezone: true, }).defaultNow().notNull(),
         updatedAt: timestamp("updated_at", { withTimezone: true, }).defaultNow().notNull(),
