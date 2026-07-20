@@ -1,7 +1,7 @@
-import { pgTable, uuid, varchar, text, bigint, timestamp, index,} from "drizzle-orm/pg-core";
-import { users } from "./users.js";
+const { pgTable, uuid, varchar, text, bigint, timestamp, index,} = require('drizzle-orm/pg-core');
+const { users } = require('./users.js');
 
-export const products = pgTable(
+const products = pgTable(
     "products",
     {
         id_product: uuid("id_product").primaryKey(),
@@ -23,3 +23,5 @@ export const products = pgTable(
         index("manufacturer_id_index").on(table.manufacturerId),
     ]
 );
+
+module.exports = {products};

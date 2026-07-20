@@ -1,8 +1,8 @@
-import { pgTable, uuid, varchar, text, boolean, timestamp, pgEnum, check } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm"; // Template helper for writing raw SQL
+const { pgTable, uuid, varchar, text, boolean, timestamp, pgEnum, check } = require('drizzle-orm/pg-core');
+const { sql } = require('drizzle-orm'); // Template helper for writing raw SQL
 
 // Role Enum
-export const roleEnum = pgEnum("role", [
+const roleEnum = pgEnum("role", [
     "ADMIN",
     "MANUFACTURER",
     "TRANSPORTER",
@@ -10,7 +10,7 @@ export const roleEnum = pgEnum("role", [
     "STORE",
 ]);
 
-export const users = pgTable(
+const users = pgTable(
     "users",
     {
         id_user: uuid("id_user").defaultRandom().primaryKey(),
@@ -31,3 +31,5 @@ export const users = pgTable(
         ),
     ]
 );
+
+module.exports = {users, roleEnum};

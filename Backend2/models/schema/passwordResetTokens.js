@@ -1,7 +1,7 @@
-import { pgTable, uuid, varchar, timestamp, index } from "drizzle-orm/pg-core";
-import { users } from "./users.js";
+const { pgTable, uuid, varchar, timestamp, index } = require("drizzle-orm/pg-core");
+const { users } = require("./users.js");
 
-export const passwordResetTokens = pgTable("password_reset_tokens", {
+const passwordResetTokens = pgTable("password_reset_tokens", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: uuid("user_id").references(() => users.id_user).notNull(),
     resetToken: varchar("reset_token", { length: 255, }).notNull().unique(),
@@ -13,3 +13,5 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
         index("password_reset_token_idx").on(table.resetToken),
     ]
 );
+
+module.exports = {passwordResetTokens};

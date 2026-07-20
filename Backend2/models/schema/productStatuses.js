@@ -1,12 +1,13 @@
-import { pgTable, serial, varchar, text } from "drizzle-orm/pg-core";
+const { pgTable, serial, varchar, text } = require("drizzle-orm/pg-core");
 
-export const productStatuses = pgTable("product_statuses", {
+const productStatuses = pgTable("product_statuses", {
   id_product_status: serial("id_product_status").primaryKey(),
   code: varchar("code", { length: 50, }).notNull().unique(),
   label: varchar("label", { length: 100, }).notNull(),
   description: text("description"),
 });
 
+module.exports = {productStatuses};
 
 // Later to seed the database with the
 /* 
