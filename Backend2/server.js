@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const registerRouter = require('./routes/register');
 const loginRouter = require('./routes/login');
 const resetRouter = require('./routes/register');
+const manifactureRouter = require('./routes/api/Manifacture');
 const cors = require('cors');
 const { corsOptions } = require('./config/corsOptions');
 const { credentials } = require('./middlewares/credentials');
@@ -23,9 +24,10 @@ app.use(cookieParser()); // Let express know how to read cookies attached in a r
 app.use('/login', loginRouter);
 app.use('/reset', resetRouter);
 
-app.use(verifyJWT);
+/* app.use(verifyJWT); */
 
 app.use('/register', registerRouter);
+app.use('/manifacturer', manifactureRouter);
 
 
 const startServer = async () => {

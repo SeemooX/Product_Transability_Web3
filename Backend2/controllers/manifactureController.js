@@ -1,7 +1,7 @@
 const { v4: uuid } = require('uuid');
 const { ethers } = require('ethers');
 const QRCode = require('qrcode');
-const db = require("../config/dbConnection");
+const {pool} = require("../config/dbConnection");
 const userQueries = require('../Queries/userQueries');
 const productQueries = require('../Queries/productQueries');
 const productStatusHistoryQueries = require('../Queries/productStatusHistoryQueries');
@@ -11,7 +11,7 @@ const { provider } = require('../utils/provider');
 
 const prepareProduct = async (req, res) => {
     try {
-        const { name, reference, serialNumber, description } = req.body;
+        let { name, reference, serialNumber, description } = req.body;
 
         if (!name || !reference || !serialNumber) return res.status(400).json({ error: 'You need to provide the <name, refrence, and serial number>' });
 
@@ -34,11 +34,6 @@ const prepareProduct = async (req, res) => {
             }
         }
 
-        const isReferenceExists = await productQueries.checkReference(reference.trim());
-        if (isReferenceExists) {
-            return res.status(409).json({ error: "This reference already exitst" });
-        }
-
         const existingProduct = await productQueries.checkProductUniqueness(reference.trim(), serialNumber.trim());
         if (existingProduct) {
             return res.status(409).json({ error: "This product already exitsts" });
@@ -57,9 +52,16 @@ const prepareProduct = async (req, res) => {
         // since we don't have any verification of hash to do in the contract
         const hashedMetaData = hashMetadata(metadataString);
 
+        const eventData = {
+            stepTypeId: 0,
+            location: "Factory",
+        }
+        const eventDataString = JSON.stringify(eventData);
+        const hashedEventData = hashMetadata(eventDataString);
+
         const productID = uuid();
 
-        return res.status(200).json({ productID, metadataHash: hashedMetaData });
+        return res.status(200).json({ productID, metadataHash: hashedMetaData, eventHash: hashedEventData });
     } catch (error) {
         console.error("sever error", error);
         return res.status(500).json({ error: error.message });
@@ -68,7 +70,7 @@ const prepareProduct = async (req, res) => {
 
 const confirmProduct = async (req, res) => {
     try {
-        const { productID, txHash, name, reference, serialNumber, description } = req.body; // Consider later using Redis cache
+        let { productID, txHash, name, reference, serialNumber, description } = req.body; // Consider later using Redis cache
 
         if (!/^[A-Za-z0-9 _-]{1,100}$/.test(name.trim())) {
             return res.status(400).json({ error: "Invalid name." });
@@ -172,7 +174,7 @@ const confirmProduct = async (req, res) => {
                 error: "Failed to extract information"
             });
         }
-        if (decoded.args[0] !== productID) {
+        if (decoded.args[0] !== ethers.id(productID)) {
             return res.status(400).json({
                 error: "Invalid product ID"
             });
@@ -198,23 +200,78 @@ const confirmProduct = async (req, res) => {
         }
 
         // Drizzle automatically starts BEGIN, COMMIT of things are complete, ROLLBACK if an error is thrown
-        await db.transaction(async (transaction) => {
+        const client = await pool.connect();
+
+        try {
+            await client.query("BEGIN");
+
             const manufacturerId = req.id;
             const currentStatus = "CREATED";
+
             const qrCode = {
                 productId: productID,
             };
 
-            const insertedProduct = await productQueries.insertProduct(transaction, { id_product: productID, manufacturerId, name, reference, serialNumber, description, currentStatus, qrCode, metadataHash });
+            // Insert product
+            const insertedProduct = await productQueries.insertProduct(
+                client,
+                {
+                    id_product: productID,
+                    manufacturerId,
+                    name,
+                    reference,
+                    serialNumber,
+                    description,
+                    currentStatus,
+                    qrCode,
+                    metadataHash
+                }
+            );
 
-            const performedBy = req.id;
+            const performedBy = manufacturerId;
             const location = "Factory";
-            const stepTypeId = 0;
-            const productId = insertedProduct.id_product;
-            await productStatusHistoryQueries.insertProductStatusHistory(transaction, { productId, stepTypeId, location, performedBy, txHash })
-        })
+            const stepTypeId = 1;
 
-        return res.status(200).json({ message: "Product successfully created" });
+            // Insert first status history
+            await productStatusHistoryQueries.insertProductStatusHistory(
+                client,
+                {
+                    productId: insertedProduct.id_product,
+                    stepTypeId,
+                    location,
+                    performedBy,
+                    txHash
+                }
+            );
+
+            await client.query("COMMIT");
+
+            return res.status(200).json({
+                message: "Product successfully created"
+            });
+
+        } catch (error) {
+
+            await client.query("ROLLBACK");
+
+            console.error(error);
+
+            // PostgreSQL unique violation
+            if (error.code === "23505") {
+                return res.status(409).json({
+                    error: "Product already exists"
+                });
+            }
+
+            return res.status(500).json({
+                error: "Product creation failed"
+            });
+
+        } finally {
+
+            client.release();
+        }
+
     } catch (error) {
         console.error("sever error", error);
         return res.status(500).json({ error: error.message });

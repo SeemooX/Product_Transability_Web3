@@ -1,4 +1,4 @@
-const db = require("../config/dbConnection");
+const {db} = require("../config/dbConnection");
 const { eq } = require("drizzle-orm");
 const { passwordResetTokens } = require("../models/schema/users");
 

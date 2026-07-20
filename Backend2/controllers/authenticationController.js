@@ -20,8 +20,6 @@ const createUser = async (req, res) => {
         return res.status(400).json({ message: 'Password must be at least 8 characters' });
     }
 
-    import { isAddress } from "ethers";
-
     if (!ethers.isAddress(walletAddress.trim())) {
         throw new Error("Invalid Ethereum wallet address");
     }
@@ -86,7 +84,7 @@ const handleLogin = async (req, res) => {
     }
 }
 
-const handleResetRequest = (req, res) => {
+const handleResetRequest = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email is required" });
 
@@ -144,7 +142,7 @@ const handleResetRequest = (req, res) => {
     }
 }
 
-const handleReset = (req, res) => {
+const handleReset = async (req, res) => {
     const { token, newPassword } = req.body;
 
     if (!token || !newPassword) {
