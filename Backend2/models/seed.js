@@ -1,5 +1,5 @@
-import { db } from "../config/dbConnection.js";
-import { productStatuses } from "./schema/productStatuses.js";
+const { db } = require('../config/dbConnection.js');
+const { productStatuses } = require('./schema/productStatuses.js');
 
 const statuses = [
     {
