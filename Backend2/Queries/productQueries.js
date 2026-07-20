@@ -1,6 +1,36 @@
-const {db} = require("../config/dbConnection");
+const { db } = require("../config/dbConnection");
 const { eq, or } = require("drizzle-orm");
 const { products } = require("../models/schema/products");
+
+const retrieveProduct = async (productID) => {
+    const [product] = await db
+        .select()
+        .from(products)
+        .where(
+            eq(products.id_product, productID)
+        )
+        .limit(1);
+
+    return product;
+}
+
+const updateProduct = async (client, productID, currentStatus) => {
+    const result = await client.query(
+        `
+        UPDATE products
+        SET
+            current_status = $2
+        WHERE id_product = $1
+        RETURNING *;
+        `,
+        [
+            productID,
+            data.currentStatus,
+        ]
+    );
+
+    return result.rows[0];
+}
 
 const checkProductUniqueness = async (reference, serialNumber) => {
     const [product] = await db
@@ -54,10 +84,10 @@ const getByBlockchainId = async (productID) => {
     const [product] = await db
         .select()
         .from(products)
-        .where( eq(products.id_product, productID) )
+        .where(eq(products.id_product, productID))
         .limit(1);
 
     return product
 }
 
-module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId }
+module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId, retrieveProduct, updateProduct }

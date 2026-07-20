@@ -4,6 +4,7 @@ const registerRouter = require('./routes/register');
 const loginRouter = require('./routes/login');
 const resetRouter = require('./routes/register');
 const manifactureRouter = require('./routes/api/Manifacture');
+const productRouter = require('./routes/api/product');
 const cors = require('cors');
 const { corsOptions } = require('./config/corsOptions');
 const { credentials } = require('./middlewares/credentials');
@@ -28,6 +29,7 @@ app.use('/reset', resetRouter);
 
 app.use('/register', registerRouter);
 app.use('/manifacturer', manifactureRouter);
+app.use('/products', manifactureRouter);
 
 
 const startServer = async () => {
