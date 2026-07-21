@@ -29,7 +29,7 @@ app.use('/reset', resetRouter);
 
 app.use('/register', registerRouter);
 app.use('/manifacturer', manifactureRouter);
-app.use('/products', manifactureRouter);
+app.use('/products', productRouter);
 
 
 const startServer = async () => {

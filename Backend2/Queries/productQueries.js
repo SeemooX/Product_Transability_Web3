@@ -1,6 +1,7 @@
 const { db } = require("../config/dbConnection");
 const { eq, or } = require("drizzle-orm");
 const { products } = require("../models/schema/products");
+const { productStatuses  } = require("../models/schema/productStatuses");
 
 const retrieveProduct = async (productID) => {
     const [product] = await db
@@ -14,18 +15,33 @@ const retrieveProduct = async (productID) => {
     return product;
 }
 
-const updateProduct = async (client, productID, currentStatus) => {
+const retrieveStepType = async (productID) => {
+    const result = await db
+        .select({
+            idProductStatus: productStatuses.id_product_status,
+        })
+        .from(products)
+        .innerJoin(
+            productStatuses,
+            eq(products.currentStatus, productStatuses.code)
+        )
+        .where(eq(products.id_product, productID));
+
+    return result[0]?.idProductStatus ?? null;
+}
+
+const updateProduct = async (client, data) => {
     const result = await client.query(
         `
         UPDATE products
         SET
-            current_status = $2
-        WHERE id_product = $1
+            current_status = $1
+        WHERE id_product = $2
         RETURNING *;
         `,
         [
-            productID,
-            data.currentStatus,
+            data.statuscode,
+            data.productID,
         ]
     );
 
@@ -90,4 +106,4 @@ const getByBlockchainId = async (productID) => {
     return product
 }
 
-module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId, retrieveProduct, updateProduct }
+module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId, retrieveProduct, updateProduct, retrieveStepType }

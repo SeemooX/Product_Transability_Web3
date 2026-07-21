@@ -1,6 +1,7 @@
 const {db} = require("../config/dbConnection");
 const { eq } = require("drizzle-orm");
 const { productStatusHistory } = require("../models/schema/productStatusHistory");
+const { productStatuses } = require("../models/schema/productStatuses");
 
 const insertProductStatusHistory = async (client, data) => {
     await client.query(

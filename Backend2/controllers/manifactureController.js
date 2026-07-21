@@ -98,7 +98,7 @@ const confirmProduct = async (req, res) => {
             });
         }
 
-        const apiCaller = await userQueries.getUserById(req.id);
+        /* const apiCaller = await userQueries.getUserById(req.id); */
 
         if (!ethers.isHexString(txHash, 32)) {
             return res.status(400).json({
@@ -143,11 +143,11 @@ const confirmProduct = async (req, res) => {
                 error: "Transaction not found"
             })
         }
-        if (tx.from.toLowerCase() !== apiCaller.walletAddress.toLowerCase()) {
+        /* if (tx.from.toLowerCase() !== apiCaller.walletAddress.toLowerCase()) {
             return res.status(400).json({
                 error: "You did not make this transaction"
             })
-        }
+        } */
         if (tx.to.toLowerCase() !== process.env.PRODUCT_TRACKING_ADDRESS) {
             return res.status(400).json({
                 error: "Transaction is not for the ProductTracking contract"

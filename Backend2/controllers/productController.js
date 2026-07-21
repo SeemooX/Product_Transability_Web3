@@ -1,17 +1,21 @@
 const { ethers } = require('ethers');
 const { pool } = require("../config/dbConnection");
 const productQueries = require('../Queries/productQueries');
+const { provider } = require('../utils/provider');
 const productStatusHistoryQueries = require('../Queries/productStatusHistoryQueries');
+const { hashMetadata } = require('../utils/hashMetadata');
+const { CONTRACT_FUNCTIONS } = require('../utils/contractABI');
 
 const prepareTraceProduct = async (req, res) => {
     try {
-        let { productID, stepType, location, notes } = req.body;
+        let {stepType, location, notes } = req.body;
+        const { id: productID } = req.params;
 
-        if (!isUUID(productID)) {
+        /* if (!isUUID(productID)) {
             return res.status(400).json({
                 error: "Invalid product ID."
             });
-        }
+        } */
 
         // Step type
         stepType = Number(stepType);
@@ -20,7 +24,6 @@ const prepareTraceProduct = async (req, res) => {
                 error: "Invalid step type."
             });
         }
-        stepType = stepType.trim();
 
         // Location
         if (location !== undefined && location !== null) {
@@ -61,7 +64,7 @@ const prepareTraceProduct = async (req, res) => {
             return res.status(409).json({ error: "This product does not exists" });
         }
 
-        const currentStepType = await productQueries.retrieveStepType(productID); // it going to be a join between product and productStatuses
+        const currentStepType = await productQueries.retrieveStepType(productID);
         if (!currentStepType) {
             return res.status(409).json({ error: "Something went wrong, this product doesn't have a current status" });
         }
@@ -75,8 +78,8 @@ const prepareTraceProduct = async (req, res) => {
         }
 
         const eventData = {
-            productID: 0,
-            stepType: "Factory",
+            productID: productID,
+            stepType: stepType,
             location: location,
             notes: notes,
             performedBy: req.id
@@ -93,7 +96,8 @@ const prepareTraceProduct = async (req, res) => {
 
 const confirmTraceProduct = async (req, res) => {
     try {
-        let { productID, stepType, location, notes, txHash } = req.body; // Consider later using Redis cache
+        let { stepType, location, notes, txHash } = req.body; // Consider later using Redis cache
+        const { id: productID } = req.params;
 
         stepType = Number(stepType);
         if (!Number.isInteger(stepType) || stepType <= 0) {
@@ -101,7 +105,6 @@ const confirmTraceProduct = async (req, res) => {
                 error: "Invalid step type."
             });
         }
-        stepType = stepType.trim();
 
         if (location !== undefined && location !== null) {
             if (typeof location !== "string") {
@@ -201,15 +204,16 @@ const confirmTraceProduct = async (req, res) => {
             return res.status(400).json({
                 error: "Transaction must call createProduct"
             });
-        }
+        }        
 
         const eventData = {
-            name: name.trim(),
-            reference: reference.trim(),
-            serialNumber: serialNumber.trim(),
-            description: description ? description.trim() : ""
+            productID: productID,
+            stepType: stepType,
+            location: location,
+            notes: notes,
+            performedBy: req.id
         }
-        const eventDataString = JSON.stringify(name);
+        const eventDataString = JSON.stringify(eventData);
         const hashedEventData = hashMetadata(eventDataString);
         if (eventDataString !== decoded.args[2]) {
             return res.status(400).json({
@@ -217,7 +221,7 @@ const confirmTraceProduct = async (req, res) => {
             });
         }
 
-        const statuscode = await productStatusHistoryQueries.getStatusCode(stepType);
+        const statuscode = await productStatusHistoryQueries.getStatusCode(stepType);        
         if (!statuscode) {
             return res.status(400).json({
                 error: "There no steptype like this"
@@ -237,8 +241,7 @@ const confirmTraceProduct = async (req, res) => {
             };
 
             const performedBy = changerId;
-            const location = "Factory";
-            const stepTypeId = 1;
+            const stepTypeId = stepType;
 
             // Insert first status history
             await productStatusHistoryQueries.insertProductStatusHistory(
@@ -258,14 +261,14 @@ const confirmTraceProduct = async (req, res) => {
                 client,
                 {
                     productID,
-                    statuscode
+                    statuscode: statuscode.code
                 }
             );
 
             await client.query("COMMIT");
 
             return res.status(200).json({
-                message: "Product successfully created"
+                message: "Product successfully updated"
             });
 
         } catch (error) {
@@ -282,7 +285,7 @@ const confirmTraceProduct = async (req, res) => {
             }
 
             return res.status(500).json({
-                error: "Product creation failed"
+                error: "Product update failed"
             });
 
         } finally {
@@ -291,7 +294,8 @@ const confirmTraceProduct = async (req, res) => {
         }
 
     } catch (error) {
-
+        console.error("sever error", error);
+        return res.status(500).json({ error: error.message });
     }
 }
 

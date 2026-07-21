@@ -8,3 +8,5 @@ productRouter.route('/:id/trace/prepare')
 
 productRouter.route('/:id/trace/confirm')
     .post(/* verifyRoles("Manifacturer"),  */productController.confirmTraceProduct);
+
+module.exports = productRouter;
