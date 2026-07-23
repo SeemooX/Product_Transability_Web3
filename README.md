@@ -14,6 +14,14 @@ you could verify installation:
 docker --version
 ```
 
+## Requirements
+
+Make sure you have installed:
+
+- Docker
+- Docker Compose
+
+
 ---
 
 # Project Structure
@@ -42,78 +50,177 @@ Each service should contain its own `Dockerfile`.
 
 ---
  
-# Backend Docker Image
+## Start the Containers
 
-Navigate to the backend2 directory.
-
-```bash
-cd backend2
-```
-
-Build the Docker image.
+From the project root directory, run:
 
 ```bash
-docker build -t backend-server .
+docker compose up --build
 ```
 
-You could verify the image.
+This will start:
 
-```bash
-docker images
-```
+- The local Hardhat blockchain container
+- The backend API container
+
+The services will be available at:
+
+- Blockchain: `http://localhost:8545`
+- Backend API: `http://localhost:3500`
 
 ---
 
-# Running the Backend Container
+## Deploy the Smart Contracts
 
-Start a container from the image..
-
-```bash
-docker run -d \
-    --name backend-container \
-    -p 3000:3000 \
-    backend-server
-```
-
-You could verify that the container is running.
+After the containers are running, open a new terminal and enter the blockchain container:
 
 ```bash
-docker ps
+docker exec -it traceability-blockchain bash
 ```
 
-You can now access the backend at
+Inside the container, run:
+
+```bash
+npm run deploy-local
+```
+
+This command deploys the smart contracts to the local Hardhat blockchain.
+
+After deployment, the contract addresses and deployment information will be available in the container logs.
+---
+
+# Application Workflow
+
+## 1. Product Creation
+
+Before creating a product through the API, the `createProduct` function from the smart contract must be called with the required parameters.
+
+The deployment script provides the necessary information about the deployed contracts and transactions.
+
+After calling the contract function successfully, use the following endpoint to prepare the product creation:
+
+### Prepare Product Creation
+
+**Endpoint**
+
+```
+POST http://localhost:3500/manifacturer/product/prepare
+```
+
+**Body**
+
+```json
+{
+  "name": "Wireless Mouse",
+  "reference": "WM-2026-002",
+  "serialNumber": "SN-WM-000002",
+  "description": "Ergonomic Bluetooth wireless mouse"
+}
+```
+
+This endpoint prepares the product data before creation.
+
+After receiving the prepared information, confirm the product creation:
+
+---
+
+### Confirm Product Creation
+
+**Endpoint**
+
+```
+POST http://localhost:3500/manifacturer/product/confirm
+```
+
+**Body**
+
+```json
+{
+  "productID": "a79c318a-9f4c-48b1-a422-e12eb46a02f1",
+  "txHash": "0xca4cc4b2658f513303ae358b7761564de1f7fabe8c3910e7a1d88ef53d6e9beb",
+  "name": "Wireless Mouse",
+  "reference": "WM-2026-002",
+  "serialNumber": "SN-WM-000002",
+  "description": "Ergonomic Bluetooth wireless mouse"
+}
+```
+
+This endpoint:
+
+- Adds the product record to the database.
+- Updates the initial product status.
+
+---
+
+# 2. Traceability Event Creation
+
+Before adding or updating traceability information, the corresponding traceability function from the smart contract must be called.
+
+After the blockchain transaction is confirmed, use the following endpoints.
+
+---
+
+## Prepare Traceability Update
+
+**Endpoint**
+
+```
+POST http://localhost:3500/products/a79c318a-9f4c-48b1-a422-e12eb46a02f1/trace/prepare
+```
+
+**Body**
+
+```json
+{
+  "stepType": "2",
+  "location": "Casablanca Factory",
+  "notes": "Package collected successfully."
+}
+```
+
+This endpoint prepares the traceability event data before confirming the blockchain transaction.
+
+---
+
+## Confirm Traceability Update
+
+**Endpoint**
+
+```
+POST http://localhost:3500/products/a79c318a-9f4c-48b1-a422-e12eb46a02f1/trace/confirm
+```
+
+**Body**
+
+```json
+{
+  "stepType": "2",
+  "location": "Casablanca Factory",
+  "notes": "Package collected successfully.",
+  "txHash": "0xf18e953dccd8631bae7ca7dd13aad9e098e7f76f8fad54f22a2aa9c0e16e99a0"
+}
+```
+
+This endpoint:
+
+- Confirms the blockchain transaction.
+- Adds the traceability record to the database.
+- Updates the current product status.
+
+---
+
+# Testing the API
+
+The backend API is available at:
 
 ```
 http://localhost:3500
 ```
 
----
+The endpoints can be tested using:
 
-# Blockchain Docker Image
+- Postman
+- Thunder Client
+- Any HTTP client
 
-Navigate to the backend service.
 
-```bash
-cd backend
-```
-
-Build the image.
-
-```bash
-docker build -t blockchain-node .
-```
-
-Run the container.
-
-```bash
-docker run -d \
-    --name blockchain-container \
-    -p 8545:8545 \
-    blockchain-node
-```
-
-Verify the container.
-
-```bash
-docker ps
-```

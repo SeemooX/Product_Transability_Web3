@@ -1,0 +1,7 @@
+FROM node:22
+WORKDIR /blockchain
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 8545
+CMD ["npx", "hardhat", "node"]

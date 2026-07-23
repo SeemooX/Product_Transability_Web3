@@ -1,0 +1,28 @@
+services:
+  blockchain:
+    build:
+      context: ./blockchain
+    container_name: traceability-blockchain
+    ports:
+      - "8545:8545"
+    networks:
+      - traceability-network
+  
+
+  backend:
+    build:
+      context: ./backend
+    container_name: traceability-backend
+    ports: 
+      - "3500:3500"
+    env_file:
+      - ./backend/.env.demo
+    depends_on:
+      - blockchain
+    networks:
+      - traceability-network
+
+networks:
+
+  traceability-network:
+    driver: bridge
