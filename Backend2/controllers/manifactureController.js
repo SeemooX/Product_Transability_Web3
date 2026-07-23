@@ -47,7 +47,7 @@ const prepareProduct = async (req, res) => {
         }
         const metadataString = JSON.stringify(metadata);
 
-        // This will has something like this "'{"name":"John Doe","reference":"REF-2025",...}'"
+        // This will have something like this "'{"name":"John Doe","reference":"REF-2025",...}'"
         // Later we could replace it with "solidityPackedKeccak256", currently not needed
         // since we don't have any verification of hash to do in the contract
         const hashedMetaData = hashMetadata(metadataString);
@@ -70,7 +70,7 @@ const prepareProduct = async (req, res) => {
 
 const confirmProduct = async (req, res) => {
     try {
-        let { productID, txHash, name, reference, serialNumber, description } = req.body; // Consider later using Redis cache
+        let { productID, txHash, name, reference, serialNumber, description } = req.body; // Consider later using Redis cache        
 
         if (!/^[A-Za-z0-9 _-]{1,100}$/.test(name.trim())) {
             return res.status(400).json({ error: "Invalid name." });
@@ -98,7 +98,7 @@ const confirmProduct = async (req, res) => {
             });
         }
 
-        /* const apiCaller = await userQueries.getUserById(req.id); */
+        const apiCaller = await userQueries.getUserById(req.id);
 
         if (!ethers.isHexString(txHash, 32)) {
             return res.status(400).json({
@@ -143,12 +143,12 @@ const confirmProduct = async (req, res) => {
                 error: "Transaction not found"
             })
         }
-        /* if (tx.from.toLowerCase() !== apiCaller.walletAddress.toLowerCase()) {
+        if (tx.from.toLowerCase() !== apiCaller.walletAddress.toLowerCase()) {
             return res.status(400).json({
                 error: "You did not make this transaction"
             })
-        } */
-        if (tx.to.toLowerCase() !== process.env.PRODUCT_TRACKING_ADDRESS) {
+        }
+        if (tx.to.toLowerCase() !== process.env.PRODUCT_TRACKING_ADDRESS.toLowerCase()) {
             return res.status(400).json({
                 error: "Transaction is not for the ProductTracking contract"
             })
