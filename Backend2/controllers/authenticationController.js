@@ -5,7 +5,7 @@ const { v4: uuid } = require('uuid');
 const ethers = require('ethers');
 
 const createUser = async (req, res) => {
-    const { fullName, email, password, role, walletAddress, companyName } = req.body;
+    let { fullName, email, password, role, walletAddress, companyName } = req.body;
     if (!email || !password || !role || !walletAddress) return res.status(400).json({ 'message': 'You need to provide all of the fields' });
 
     if (!fullName || typeof fullName !== "string" || fullName.trim() === "")
@@ -31,7 +31,11 @@ const createUser = async (req, res) => {
 
     try {
         const userFound = await userQueries.getUserByEmail(email.toLowerCase());
-        if (!userFound) res.status(409).json({ message: "This account already registered" });
+        if (userFound) {
+            return res.status(409).json({
+                message: "This account is already registered"
+            });
+        }
 
         const passwordHash = await bcrypt.hash(password, 10);
 
@@ -41,7 +45,7 @@ const createUser = async (req, res) => {
             email: addedUser.email
         }
 
-        return res.status(204).json({ user: user })
+        return res.status(201).json({ user: user })
     } catch (error) {
         console.error("sever error", error);
         return res.status(500).json({ error: error.message });

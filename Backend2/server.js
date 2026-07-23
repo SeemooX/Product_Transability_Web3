@@ -25,7 +25,7 @@ app.use(cookieParser()); // Let express know how to read cookies attached in a r
 app.use('/login', loginRouter);
 app.use('/reset', resetRouter);
 
-/* app.use(verifyJWT); */
+app.use(verifyJWT);
 
 app.use('/register', registerRouter);
 app.use('/manifacturer', manifactureRouter);

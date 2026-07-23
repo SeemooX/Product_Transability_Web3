@@ -4,9 +4,9 @@ const manifactureController = require('../../controllers/manifactureController')
 const { verifyRoles } = require('../../middlewares/verifyRoles');
 
 manifactureRouter.route('/product/prepare')
-    .post(/* verifyRoles("Manifacturer"),  */manifactureController.prepareProduct);
+    .post(verifyRoles("Manifacturer"), manifactureController.prepareProduct);
 
 manifactureRouter.route('/product/confirm')
-    .post(/* verifyRoles("Manifacturer"),  */manifactureController.confirmProduct);
+    .post(verifyRoles("Manifacturer"), manifactureController.confirmProduct);
 
 module.exports = manifactureRouter;
