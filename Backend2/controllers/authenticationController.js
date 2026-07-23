@@ -3,6 +3,7 @@ const resetTokenQueries = require('../Queries/resetTokenQueries');
 const bcrypt = require('bcrypt');
 const { v4: uuid } = require('uuid');
 const ethers = require('ethers');
+const jwt = require('jsonwebtoken');
 
 const createUser = async (req, res) => {
     let { fullName, email, password, role, walletAddress, companyName } = req.body;
@@ -58,10 +59,9 @@ const handleLogin = async (req, res) => {
     if (!email || !password) return res.status(400).json({ message: 'You need to provide both the password and the email' });
 
     const foundedUser = await userQueries.getUserByEmail(email.toLowerCase());
-
     if (!foundedUser) res.status(401).json({ message: "Invalid email or password" });
 
-    const isPwdMatch = await bcrypt.compare(password, foundedUser.password_hash);
+    const isPwdMatch = await bcrypt.compare(password, foundedUser.passwordHash);
     if (isPwdMatch) {
         const accessToken = jwt.sign(
             {
