@@ -39,7 +39,7 @@ const createUser = async (req, res) => {
 
         const passwordHash = await bcrypt.hash(password, 10);
 
-        const addedUser = await userQueries.createUser(fullName, email, passwordHash, role, walletAddress, companyName);
+        const addedUser = await userQueries.createUser({fullName, email, passwordHash, role, walletAddress, companyName});
         const user = {
             fullName: addedUser.full_name,
             email: addedUser.email

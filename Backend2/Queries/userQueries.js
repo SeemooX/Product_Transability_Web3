@@ -1,6 +1,6 @@
 const {db} = require("../config/dbConnection");
 const { eq } = require("drizzle-orm");
-const { passwordResetTokens } = require("../models/schema/users");
+const { users } = require("../models/schema/users");
 
 const getUserByEmail = async (email) => {
     const [user] = await db
