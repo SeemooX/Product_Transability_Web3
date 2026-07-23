@@ -3,12 +3,13 @@ const { pool } = require("../config/dbConnection");
 const productQueries = require('../Queries/productQueries');
 const { provider } = require('../utils/provider');
 const productStatusHistoryQueries = require('../Queries/productStatusHistoryQueries');
+const userQueries = require('../Queries/userQueries');
 const { hashMetadata } = require('../utils/hashMetadata');
 const { CONTRACT_FUNCTIONS } = require('../utils/contractABI');
 
 const prepareTraceProduct = async (req, res) => {
     try {
-        let {stepType, location, notes } = req.body;
+        let { stepType, location, notes } = req.body;
         const { id: productID } = req.params;
 
         /* if (!isUUID(productID)) {
@@ -70,24 +71,26 @@ const prepareTraceProduct = async (req, res) => {
         }
 
         if (Number(currentStepType) === 2) {
-            if (Number(stepType) !== 3 || Number(stepType) !== 7) {
-                return res.status(409).json({ error: "The stepType you entered is not convenient" });
+            if (Number(stepType) !== 3 && Number(stepType) !== 7) {
+                return res.status(409).json({
+                    error: "The stepType you entered is not convenient"
+                });
             }
-        } else if (Number(currentStepType) != (Number(stepType) + 1)) {
+        } else if (Number(stepType) !== (Number(currentStepType) + 1)) {
             return res.status(409).json({ error: "The stepType you entered is not convenient" });
         }
 
         const eventData = {
             productID: productID,
             stepType: stepType,
-            location: location,
-            notes: notes,
+            location: location ? location : "",
+            notes: notes ? notes : "",
             performedBy: req.id
         }
         const eventDataString = JSON.stringify(eventData);
         const hashedEventData = hashMetadata(eventDataString);
 
-        return res.status(200).json({ productID, stepType, eventHash: hashedEventData });
+        return res.status(200).json({ productID, eventHash: hashedEventData });
     } catch (error) {
         console.error("sever error", error);
         return res.status(500).json({ error: error.message });
@@ -170,7 +173,7 @@ const confirmTraceProduct = async (req, res) => {
                 error: "You did not make this transaction"
             })
         }
-        if (tx.to.toLowerCase() !== process.env.PRODUCT_TRACKING_ADDRESS) {
+        if (tx.to.toLowerCase() !== process.env.PRODUCT_TRACKING_ADDRESS.toLowerCase()) {
             return res.status(400).json({
                 error: "Transaction is not for the ProductTracking contract"
             })
@@ -204,24 +207,24 @@ const confirmTraceProduct = async (req, res) => {
             return res.status(400).json({
                 error: "Transaction must call createProduct"
             });
-        }        
+        }
 
         const eventData = {
             productID: productID,
             stepType: stepType,
-            location: location,
-            notes: notes,
+            location: location ? location : "",
+            notes: notes ? notes : "",
             performedBy: req.id
         }
         const eventDataString = JSON.stringify(eventData);
         const hashedEventData = hashMetadata(eventDataString);
-        if (eventDataString !== decoded.args[2]) {
+        if (hashedEventData !== decoded.args[2]) {
             return res.status(400).json({
                 error: "Data should never be changed"
             });
         }
 
-        const statuscode = await productStatusHistoryQueries.getStatusCode(stepType);        
+        const statuscode = await productStatusHistoryQueries.getStatusCode(stepType);
         if (!statuscode) {
             return res.status(400).json({
                 error: "There no steptype like this"
