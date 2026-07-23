@@ -66,7 +66,7 @@ docker images
 
 # Running the Backend Container
 
-Start a container from the image.
+Start a container from the image..
 
 ```bash
 docker run -d \
