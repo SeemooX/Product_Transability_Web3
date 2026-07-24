@@ -1,7 +1,7 @@
 services:
   blockchain:
     build:
-      context: ./blockchain
+      context: ./Backend
     container_name: traceability-blockchain
     ports:
       - "8545:8545"
@@ -11,12 +11,12 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: ./Backend2
     container_name: traceability-backend
     ports: 
       - "3500:3500"
     env_file:
-      - ./backend/.env.demo
+      - ./Backend2/.env.demo
     depends_on:
       - blockchain
     networks:
