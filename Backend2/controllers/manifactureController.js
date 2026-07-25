@@ -1,7 +1,7 @@
 const { v4: uuid } = require('uuid');
 const { ethers } = require('ethers');
 const QRCode = require('qrcode');
-const {pool} = require("../config/dbConnection");
+const { pool } = require("../config/dbConnection");
 const userQueries = require('../Queries/userQueries');
 const productQueries = require('../Queries/productQueries');
 const productStatusHistoryQueries = require('../Queries/productStatusHistoryQueries');
@@ -64,7 +64,7 @@ const prepareProduct = async (req, res) => {
         return res.status(200).json({ productID, metadataHash: hashedMetaData, eventHash: hashedEventData });
     } catch (error) {
         console.error("sever error", error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: "Internal server error" });
     }
 }
 
@@ -276,12 +276,48 @@ const confirmProduct = async (req, res) => {
 
     } catch (error) {
         console.error("sever error", error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: "Internal server error" });
     }
 }
 
-const manifacturerStatistics = (req, res) => {}
+const manifacturerProducts = async (req, res) => {
+    try {
+        const userId = req.id;
 
-const manifacturerProducts = (req, res) => {}
+        const allUserProducts = await productQueries.getAllProducts(userId);
+        if (allUserProducts == null) {
+            return res.status(500).json({
+                error: "Failed to retrieve products.",
+            });
+        }
+
+        return res.status(200).json({
+            products: allUserProducts
+        });
+    } catch (error) {
+        console.error("sever error", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+const manifacturerStatistics = async (req, res) => {
+    try {
+        const userId = req.id;
+
+        const manufacturerProductStatistics = await productQueries.getManufacturerStatistics(userId);
+        if (manufacturerProductStatistics == null) {
+            return res.status(500).json({
+                error: "Failed to retrieve statistics.",
+            });
+        }
+
+        return res.status(200).json({
+            userStatistics: manufacturerProductStatistics
+        });
+    } catch (error) {
+        console.error("sever error", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
 
 module.exports = { prepareProduct, confirmProduct, manifacturerStatistics, manifacturerProducts };
