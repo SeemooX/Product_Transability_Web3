@@ -208,9 +208,11 @@ const confirmProduct = async (req, res) => {
             const manufacturerId = req.id;
             const currentStatus = "CREATED";
 
-            const qrCode = {
+            const qrPayload = {
                 productId: productID,
             };
+            const qrString = JSON.stringify(qrPayload);
+            const Qrcode = await QRCode.toDataURL(qrString);
 
             // Insert product
             const insertedProduct = await productQueries.insertProduct(
@@ -278,4 +280,8 @@ const confirmProduct = async (req, res) => {
     }
 }
 
-module.exports = { prepareProduct, confirmProduct };
+const manifacturerStatistics = (req, res) => {}
+
+const manifacturerProducts = (req, res) => {}
+
+module.exports = { prepareProduct, confirmProduct, manifacturerStatistics, manifacturerProducts };
