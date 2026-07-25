@@ -212,7 +212,7 @@ const confirmProduct = async (req, res) => {
                 productId: productID,
             };
             const qrString = JSON.stringify(qrPayload);
-            const Qrcode = await QRCode.toDataURL(qrString);
+            const qrCode = await QRCode.toDataURL(qrString);
 
             // Insert product
             const insertedProduct = await productQueries.insertProduct(
