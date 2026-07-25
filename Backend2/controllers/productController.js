@@ -93,7 +93,7 @@ const prepareTraceProduct = async (req, res) => {
         return res.status(200).json({ productID, eventHash: hashedEventData });
     } catch (error) {
         console.error("sever error", error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: "Internal server error" });
     }
 }
 
@@ -298,8 +298,44 @@ const confirmTraceProduct = async (req, res) => {
 
     } catch (error) {
         console.error("sever error", error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: "Internal server error" });
     }
 }
 
-module.exports = { prepareTraceProduct, confirmTraceProduct }
+const productHistory = async (req, res) => {
+    try {
+        const { id: productId } = req.params;
+
+        const history = await productQueries.getProductHistory(productId);
+        if (history == null) {
+            return res.status(500).json({
+                error: "Failed to retrieve product history."
+            });
+        }
+
+        return res.status(200).json({ history: history });
+    } catch (error) {
+        console.error("sever error", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+const productInformation = async (req, res) => {
+    try {
+        const { id: productId } = req.params;
+
+        const infos = await productQueries.getProductInformation(productId);
+        if (infos == null) {
+            return res.status(500).json({
+                error: "Failed to retrieve product information."
+            });
+        }
+
+        return res.status(200).json({ information: infos });
+    } catch (error) {
+        console.error("sever error", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+module.exports = { prepareTraceProduct, confirmTraceProduct, productInformation, productHistory }

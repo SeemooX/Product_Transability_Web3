@@ -1,7 +1,8 @@
 const { db } = require("../config/dbConnection");
-const { eq, or } = require("drizzle-orm");
+const { eq, or, sql } = require("drizzle-orm");
 const { products } = require("../models/schema/products");
-const { productStatuses  } = require("../models/schema/productStatuses");
+const { productStatuses } = require("../models/schema/productStatuses");
+const { productStatusHistory } = require("../models/schema/productStatusHistory");
 
 const retrieveProduct = async (productID) => {
     const [product] = await db
@@ -106,4 +107,84 @@ const getByBlockchainId = async (productID) => {
     return product
 }
 
-module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId, retrieveProduct, updateProduct, retrieveStepType }
+const getAllProducts = async (userId) => {
+    const allProducts = await db
+        .select()
+        .from(products)
+        .where(eq(products.manufacturerId, userId));
+
+    return allProducts;
+}
+
+const getManufacturerStatistics = async (userId) => {
+    const [stats] = await db
+        .select({
+            total: sql`count(*)`,
+            shipping: sql`
+                count(*) filter (
+                    where ${products.currentStatus} in (
+                        'PICKED_UP',
+                        'PICKED_UP_FROM_WAREHOUSE'
+                    )
+                )
+            `,
+            shipped: sql`
+                count(*) filter (
+                    where ${products.currentStatus} in (
+                        'DELIVERED_TO_STORE',
+                        'AVAILABLE_FOR_SALE'
+                    )
+                )
+            `,
+            waiting: sql`
+                count(*) filter (
+                    where ${products.currentStatus} in (
+                        'DELIVERED_TO_WAREHOUSE',
+                        'RECEIVED_AT_WAREHOUSE',
+                        'READY_FOR_DISPATCH'
+                    )
+                )
+            `,
+        })
+        .from(products)
+        .where(eq(products.manufacturerId, userId));
+
+    return stats;
+};
+
+const getProductHistory = async (productId) => {
+    const history = await db
+        .select({
+            id: productStatusHistory.id,
+            productId: productStatusHistory.productId,
+            stepTypeId: productStatusHistory.stepTypeId,
+            code: productStatuses.code,
+            label: productStatuses.label,
+            performedBy: productStatusHistory.performedBy,
+            location: productStatusHistory.location,
+            notes: productStatusHistory.notes,
+            txHash: productStatusHistory.txHash,
+            createdAt: productStatusHistory.createdAt,
+        })
+        .from(productStatusHistory)
+        .innerJoin(
+            productStatuses,
+            eq(productStatusHistory.stepTypeId, productStatuses.id_product_status)
+        )
+        .where(eq(productStatusHistory.productId, productId));
+
+    return history;
+}
+
+const getProductInformation = async (productId) => {
+    const infos = await db
+        .select()
+        .from(products)
+        .where(
+            eq(products.id_product, productId)
+        );
+
+    return infos;
+}
+
+module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId, retrieveProduct, updateProduct, retrieveStepType, getAllProducts, getManufacturerStatistics, getProductHistory, getProductInformation }

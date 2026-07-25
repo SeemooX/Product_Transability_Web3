@@ -9,4 +9,10 @@ productRouter.route('/:id/trace/prepare')
 productRouter.route('/:id/trace/confirm')
     .post(/* verifyRoles("Manifacturer"),  */productController.confirmTraceProduct);
 
+productRouter.route('/:id/history')
+    .get(/* verifyRoles("Manifacturer"),  */productController.productHistory);
+
+productRouter.route('/:id')
+    .get(/* verifyRoles("Manifacturer"),  */productController.productInformation);
+
 module.exports = productRouter;
