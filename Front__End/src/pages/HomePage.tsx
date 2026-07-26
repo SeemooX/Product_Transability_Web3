@@ -1,5 +1,5 @@
 import { NavBar } from "@/components/NavBar";
-import { Bell, Home, Package, Clock3, User, ScanLine, Drill, ChevronRight } from "lucide-react";
+import { Bell, Drill, ChevronRight } from "lucide-react";
 
 export const HomePage = () => {
   const stats = [
