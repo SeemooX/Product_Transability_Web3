@@ -224,7 +224,7 @@ const getTransporterStatistics = async (userId) => {
     const [activity] = await db
         .select({
             picked: sql`
-            count(*) filter (
+            count(distinct ${productStatusHistory.productId}) filter (
                 where ${productStatuses.code} in (
                     'PICKED_UP',
                     'PICKED_UP_FROM_WAREHOUSE'
@@ -232,7 +232,7 @@ const getTransporterStatistics = async (userId) => {
             )
         `,
             delivered: sql`
-            count(*) filter (
+            count(distinct ${productStatusHistory.productId}) filter (
                 where ${productStatuses.code} in (
                     'DELIVERED_TO_WAREHOUSE',
                     'DELIVERED_TO_STORE'
