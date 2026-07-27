@@ -28,7 +28,7 @@ app.use('/reset', resetRouter);
 app.use(verifyJWT);
 
 app.use('/register', registerRouter);
-app.use('/manifacturer', manifactureRouter);
+app.use('/manufacturer', manifactureRouter);
 app.use('/products', productRouter);
 
 

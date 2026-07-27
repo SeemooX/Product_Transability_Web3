@@ -289,7 +289,7 @@ const manifacturerProducts = async (req, res) => {
 
         const offset = (page - 1) * limit;
 
-        const products = await productQueries.getProducts(userId);
+        const products = await productQueries.getProducts(userId, limit, offset);
         if (products == null) {
             return res.status(500).json({
                 error: "Failed to retrieve products.",

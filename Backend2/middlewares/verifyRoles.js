@@ -1,4 +1,4 @@
-const verifyRoles = (allowedRoles) => {
+const verifyRoles = (...allowedRoles) => {
     const normalizedRole = new Set(
         allowedRoles.map(role => role.toLowerCase())
     );

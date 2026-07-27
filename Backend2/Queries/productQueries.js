@@ -1,5 +1,5 @@
 const { db } = require("../config/dbConnection");
-const { eq, or, sql } = require("drizzle-orm");
+const { eq, or, sql, count } = require("drizzle-orm");
 const { products } = require("../models/schema/products");
 const { productStatuses } = require("../models/schema/productStatuses");
 const { productStatusHistory } = require("../models/schema/productStatusHistory");
@@ -112,7 +112,7 @@ const getProducts = async (userId, limit, offset) => {
         .select()
         .from(products)
         .where(eq(products.manufacturerId, userId))
-        .orderBy(products.id)
+        .orderBy(products.id_product)
         .limit(limit)
         .offset(offset);
 
