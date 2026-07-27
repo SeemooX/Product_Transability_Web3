@@ -5,6 +5,8 @@ const loginRouter = require('./routes/login');
 const resetRouter = require('./routes/register');
 const manifactureRouter = require('./routes/api/Manifacture');
 const transporterRouter = require('./routes/api/transporter');
+const warehouseRouter = require('./routes/api/Warehouse');
+const storeRouter = require('./routes/api/Store');
 const productRouter = require('./routes/api/product');
 const cors = require('cors');
 const { corsOptions } = require('./config/corsOptions');
@@ -31,12 +33,12 @@ app.use(verifyJWT);
 app.use('/register', registerRouter);
 app.use('/manufacturer', manifactureRouter);
 app.use('/transporter', transporterRouter);
+app.use('/warehouse', warehouseRouter);
+app.use('/store', storeRouter);
 app.use('/products', productRouter);
-
 
 const startServer = async () => {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
-
 
 startServer();
