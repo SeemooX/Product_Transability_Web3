@@ -4,15 +4,15 @@ const manifactureController = require('../../controllers/manifactureController')
 const { verifyRoles } = require('../../middlewares/verifyRoles');
 
 manifactureRouter.route('/product/prepare')
-    .post(/* verifyRoles("Manifacturer"),  */manifactureController.prepareProduct);
+    .post(verifyRoles("MANUFACTURER"), manifactureController.prepareProduct);
 
 manifactureRouter.route('/product/confirm')
-    .post(/* verifyRoles("Manifacturer"),  */manifactureController.confirmProduct);
+    .post(verifyRoles("MANUFACTURER"), manifactureController.confirmProduct);
 
 manifactureRouter.route('/products/statistics')
-    .get(/* verifyRoles("Manifacturer"),  */manifactureController.manifacturerStatistics);
+    .get(verifyRoles("MANUFACTURER"), manifactureController.manifacturerStatistics);
 
 manifactureRouter.route('/products')
-    .get(/* verifyRoles("Manifacturer"),  */manifactureController.manifacturerProducts);
+    .get(verifyRoles("MANUFACTURER"), manifactureController.manifacturerProducts);
 
 module.exports = manifactureRouter;

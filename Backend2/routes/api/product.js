@@ -4,15 +4,15 @@ const productController = require('../../controllers/productController');
 const { verifyRoles } = require('../../middlewares/verifyRoles');
 
 productRouter.route('/:id/trace/prepare')
-    .post(/* verifyRoles("Manifacturer"),  */productController.prepareTraceProduct);
+    .post(verifyRoles("MANUFACTURER", "TRANSPORTER", "WAREHOUSE", "STORE"), productController.prepareTraceProduct);
 
 productRouter.route('/:id/trace/confirm')
-    .post(/* verifyRoles("Manifacturer"),  */productController.confirmTraceProduct);
+    .post(verifyRoles("MANUFACTURER", "TRANSPORTER", "WAREHOUSE", "STORE"), productController.confirmTraceProduct);
 
 productRouter.route('/:id/history')
-    .get(/* verifyRoles("Manifacturer"),  */productController.productHistory);
+    .get(verifyRoles("MANUFACTURER", "TRANSPORTER", "WAREHOUSE", "STORE"), productController.productHistory);
 
 productRouter.route('/:id')
-    .get(/* verifyRoles("Manifacturer"),  */productController.productInformation);
+    .get(verifyRoles("MANUFACTURER", "TRANSPORTER", "WAREHOUSE", "STORE"), productController.productInformation);
 
 module.exports = productRouter;

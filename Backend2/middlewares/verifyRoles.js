@@ -1,25 +1,24 @@
-let roleToIdHierarchy = {
-    user: 1,
-    admin: 2,
-};
+const verifyRoles = (allowedRoles) => {
+    const normalizedRole = new Set(
+        allowedRoles.map(role => role.toLowerCase())
+    );
 
-
-const verifyRoles = (allowedRole) => {
     return (req, res, next) => {
-        if (!req?.role) return res.sendStatus(401); // The role must be put in the token, so each time there is a request, it gets decoded and we get the user role
+        const userRole = req.role;
+        if(!userRole) {
+            return res.status(401).json({ error: "Authentication required" });
+        }
 
-        const userRole = req.role.toLowerCase();
-        const userRank = Number(roleToIdHierarchy[userRole] || 0);
+        if(typeof userRole !== "string") {
+            return res.status(403).json({ error: "User role is missing" });
+        }
 
-        const allowedRank = Number(roleToIdHierarchy[allowedRole.toLowerCase()] || 0);
-
-        // Hierarchical access: higher roles inherit lower role permissions
-        const isAllowed = userRank >= allowedRank;
-
-        if (!isAllowed) return res.sendStatus(403);
-
+        if(!normalizedRole.has(userRole.toLocaleLowerCase())) {
+            return res.status(403).json({ error: "Inusfficient permissions" });
+        }
+        
         next();
-    };
+    }
 };
 
 module.exports = { verifyRoles };

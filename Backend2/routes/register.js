@@ -4,6 +4,6 @@ const verifyRole = require("../middlewares/verifyRoles")
 const authController = require('../controllers/authenticationController');
 
 registerRouter.route("/")
-    .post(/* verifyRole("Admin"), */ authController.createUser);
+    .post(verifyRole("ADMIN"), authController.createUser);
 
 module.exports = registerRouter;
