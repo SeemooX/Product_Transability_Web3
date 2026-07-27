@@ -107,14 +107,26 @@ const getByBlockchainId = async (productID) => {
     return product
 }
 
-const getAllProducts = async (userId) => {
+const getProducts = async (userId, limit, offset) => {
     const allProducts = await db
         .select()
         .from(products)
-        .where(eq(products.manufacturerId, userId));
+        .where(eq(products.manufacturerId, userId))
+        .orderBy(products.id)
+        .limit(limit)
+        .offset(offset);
 
     return allProducts;
-}
+};
+
+const countProducts = async (userId) => {
+    const result = await db
+        .select({ total: count() })
+        .from(products)
+        .where(eq(products.manufacturerId, userId));
+
+    return result[0].total;
+};
 
 const getManufacturerStatistics = async (userId) => {
     const [stats] = await db
@@ -187,4 +199,4 @@ const getProductInformation = async (productId) => {
     return infos;
 }
 
-module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId, retrieveProduct, updateProduct, retrieveStepType, getAllProducts, getManufacturerStatistics, getProductHistory, getProductInformation }
+module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId, retrieveProduct, updateProduct, retrieveStepType, getProducts, getManufacturerStatistics, getProductHistory, getProductInformation, countProducts }

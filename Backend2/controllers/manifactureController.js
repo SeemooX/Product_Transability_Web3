@@ -284,15 +284,27 @@ const manifacturerProducts = async (req, res) => {
     try {
         const userId = req.id;
 
-        const allUserProducts = await productQueries.getAllProducts(userId);
-        if (allUserProducts == null) {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+
+        const offset = (page - 1) * limit;
+
+        const products = await productQueries.getProducts(userId);
+        if (products == null) {
             return res.status(500).json({
                 error: "Failed to retrieve products.",
             });
         }
+        const totalProducts = await productQueries.countProducts(userId);
 
         return res.status(200).json({
-            products: allUserProducts
+            products,
+            pagination: {
+                page,
+                limit,
+                totalProducts,
+                totalPages: Math.ceil(totalProducts / limit)
+            }
         });
     } catch (error) {
         console.error("sever error", error);
