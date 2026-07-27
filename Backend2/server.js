@@ -4,6 +4,7 @@ const registerRouter = require('./routes/register');
 const loginRouter = require('./routes/login');
 const resetRouter = require('./routes/register');
 const manifactureRouter = require('./routes/api/Manifacture');
+const transporterRouter = require('./routes/api/transporter');
 const productRouter = require('./routes/api/product');
 const cors = require('cors');
 const { corsOptions } = require('./config/corsOptions');
@@ -29,6 +30,7 @@ app.use(verifyJWT);
 
 app.use('/register', registerRouter);
 app.use('/manufacturer', manifactureRouter);
+app.use('/transporter', transporterRouter);
 app.use('/products', productRouter);
 
 
