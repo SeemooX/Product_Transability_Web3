@@ -1,5 +1,5 @@
 const storeRouter = express.Router();
-const storeController = require('../../controllers/warehouseController');
+const storeController = require('../../controllers/storeController');
 const { verifyRoles } = require('../../middlewares/verifyRoles');
 
 storeRouter.route('/products/statistics')
