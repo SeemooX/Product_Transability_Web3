@@ -1,0 +1,1 @@
+export type Role = "FABRICANT" | "TRANSPORTEUR" | "ENTREPOT" | "DISTRIBUTEUR" | "CLIENT";

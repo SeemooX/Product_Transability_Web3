@@ -2,18 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, Eye, EyeOff, UserPlus } from "lucide-react";
 import { createUser } from "@/api/authenticationApi";
 import { useNavigate } from "react-router";
-
-type Role = "FABRICANT" | "TRANSPORTEUR" | "ENTREPOT" | "DISTRIBUTEUR" | "CLIENT";
-
-interface UserForm {
-    fullName: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-    role: Role;
-    walletAddress: string;
-    companyName: string;
-}
+import type { UserForm } from "@/types/userForm";
 
 export default function CreateUser() {
     const navigate = useNavigate();
