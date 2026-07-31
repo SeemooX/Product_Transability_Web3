@@ -7,6 +7,7 @@ import { AddStep } from './pages/AddStep';
 import { ProductHistory } from './pages/ProductHistory';
 import { ProfilePage } from './pages/ProfilePage';
 import ProductDetails from './pages/ProductDetails';
+import { QRScan } from './pages/QRScan';
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ export const router = createBrowserRouter([
   {
     path: '/products',
     element: <ProductsPage />,
+  },
+  {
+    path: '/scan',
+    element: <QRScan />,
   },
   {
     path: '/history',
