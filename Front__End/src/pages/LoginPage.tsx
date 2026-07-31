@@ -7,14 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Eye, EyeOff, Apple } from 'lucide-react';
 import { Separator } from '@base-ui/react/separator';
 import { loginUser } from "@/api/authenticationApi"
-/* import { useAuth } from '@/context/AuthContext'; */
+import { useAuth } from '@/context/AuthContext';
 
 export const LoginPage = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState<boolean>(false);
-    /* const { login } = useAuth(); */
+    const { login } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -37,7 +37,7 @@ export const LoginPage = () => {
                 name: data.user.name
             }
             login(data.accessToken, userData)
-            navigate("/");
+            navigate("/home");
         } catch (error: any) {
             console.error(error);
             alert(error.message || "Login failed");

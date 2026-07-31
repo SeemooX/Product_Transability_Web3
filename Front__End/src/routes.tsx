@@ -10,6 +10,8 @@ import ProductDetails from './pages/ProductDetails';
 import { QRScan } from './pages/QRScan';
 import { PublicOnlyRoute } from './context/PublicOnlyRoute';
 import { ProtectedRoute } from './context/ProtectedRoute';
+import { AdminRoute } from './context/AdminProtectedRoute';
+import CreateUser from './pages/admin/CreateUser';
 
 export const router = createBrowserRouter([
   {
@@ -82,6 +84,14 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <AddStep />
       </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/createUser',
+    element: (
+      <AdminRoute>
+        <CreateUser />
+      </AdminRoute>
     ),
   }
 ]);
