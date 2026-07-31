@@ -57,6 +57,10 @@ export const HomePage = () => {
           </div>
         </div>
 
+        <button className="w-full bg-green-600 text-white font-semibold py-4 rounded-2xl active:scale-95 transition">
+          Créer un produit
+        </button>
+
         <section className="mt-7">
           <h2 className="font-semibold text-lg mb-4">Produits récents</h2>
 
@@ -87,7 +91,7 @@ export const HomePage = () => {
         </section>
 
       </main>
-      <NavBar/>
+      <NavBar />
     </div>
   );
 }
