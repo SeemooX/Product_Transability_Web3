@@ -8,42 +8,80 @@ import { ProductHistory } from './pages/ProductHistory';
 import { ProfilePage } from './pages/ProfilePage';
 import ProductDetails from './pages/ProductDetails';
 import { QRScan } from './pages/QRScan';
+import { PublicOnlyRoute } from './context/PublicOnlyRoute';
+import { ProtectedRoute } from './context/ProtectedRoute';
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <WelcomePage />,
+    element: (
+      <PublicOnlyRoute>
+        <WelcomePage />
+      </PublicOnlyRoute>
+    ),
   },
   {
     path: '/login',
-    element: <LoginPage />,
+    element: (
+      <PublicOnlyRoute>
+        <LoginPage />
+      </PublicOnlyRoute>
+    ),
   },
   {
     path: '/home',
-    element: <HomePage />,
+    element: (
+      <ProtectedRoute>
+        <HomePage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/products',
-    element: <ProductsPage />,
+    element: (
+      <ProtectedRoute>
+        <ProductsPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/scan',
-    element: <QRScan />,
+    element: (
+      <ProtectedRoute>
+        <QRScan />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/history',
-    element: <ProductHistory />,
+    element: (
+      <ProtectedRoute>
+        <ProductHistory />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/profile',
-    element: <ProfilePage />,
+    element: (
+      <ProtectedRoute>
+        <ProfilePage />
+      </ProtectedRoute>
+    ),
   },
   {
-    path: '/product',
-    element: <ProductDetails />,
+    path: '/product/:id',
+    element: (
+      <ProtectedRoute>
+        <ProductDetails />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/addstep',
-    element: <AddStep />,
+    element: (
+      <ProtectedRoute>
+        <AddStep />
+      </ProtectedRoute>
+    ),
   }
 ]);

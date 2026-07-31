@@ -6,8 +6,8 @@ import { Label } from '../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Eye, EyeOff, Apple } from 'lucide-react';
 import { Separator } from '@base-ui/react/separator';
-/* import { loginUser } from "@/api/authenticationApi"
-import { useAuth } from '@/context/AuthContext'; */
+import { loginUser } from "@/api/authenticationApi"
+/* import { useAuth } from '@/context/AuthContext'; */
 
 export const LoginPage = () => {
     const navigate = useNavigate();
@@ -19,7 +19,7 @@ export const LoginPage = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        /* if (email === '' || password === '') {
+        if (email === '' || password === '') {
             alert("Fields must be entered!");
             return;
         }
@@ -41,7 +41,7 @@ export const LoginPage = () => {
         } catch (error: any) {
             console.error(error);
             alert(error.message || "Login failed");
-        } */
+        }
     };
 
     return (
