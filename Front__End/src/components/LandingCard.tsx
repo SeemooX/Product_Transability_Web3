@@ -1,6 +1,8 @@
 import { ShieldCheck } from "lucide-react";
+import { useNavigate } from "react-router";
 
 export default function LandingCard() {
+    const navigate = useNavigate();
     return (
         <div className="h-[100dvh] w-full overflow-hidden bg-gradient-to-b from-[#0B4E3B] via-[#0D6A4D] to-[#0B7B56] flex flex-col">
 
@@ -69,7 +71,7 @@ export default function LandingCard() {
 
                 <div className="mt-10 flex flex-col gap-4">
 
-                    <button className="h-16 rounded-2xl bg-[#17B347] text-lg font-semibold text-white transition hover:bg-[#14993D]">
+                    <button className="h-16 rounded-2xl bg-[#17B347] text-lg font-semibold text-white transition hover:bg-[#14993D]" onClick={() => navigate("/login")}>
                         Se connecter
                     </button>
 
@@ -81,7 +83,7 @@ export default function LandingCard() {
 
                 <div className="mt-8 flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                     <ShieldCheck size={14} className="text-green-500" />
-                    <span>Powered by Blockchain</span>
+                    <span>Powered by Ethereum Blockchain</span>
                 </div>
 
             </section>

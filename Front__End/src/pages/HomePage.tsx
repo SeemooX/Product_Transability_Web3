@@ -1,18 +1,64 @@
+import { getProducts } from "@/api/productApi";
+import { getStatistics } from "@/api/statistics";
 import { NavBar } from "@/components/NavBar";
+import { useAuth } from "@/context/AuthContext";
 import { Bell, Drill, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { ManufactStat } from "@/types/statistics";
+import type { Product } from "@/types/product";
 
 export const HomePage = () => {
-  const stats = [
-    { value: 128, label: "Produits enregistrés", color: "bg-green-100", icon: "🟢" },
-    { value: 18, label: "En transit", color: "bg-orange-100", icon: "🟡" },
-    { value: 96, label: "Livrés", color: "bg-green-100", icon: "🟢" },
-    { value: 14, label: "En attente", color: "bg-red-100", icon: "🔴" },
-  ];
+  const [stats, setStats] = useState<ManufactStat>({
+    total: "0",
+    shipping: "0",
+    shipped: "0",
+    waiting: "0"
+  });
+  const [products, setProducts] = useState<Product[]>([]);
+  const { role } = useAuth();
+  const [loading, setLoading] = useState(true);
 
-  const products = [
-    { name: "Perceuse Bosch X200", ref: "BOSCH-X200-4S87", status: "En transit", color: "text-orange-500" },
-    { name: "Visseuse Makita 18V", ref: "MAK-18V-7845", status: "Livré", color: "text-green-600" },
-    { name: "Marteau perforateur", ref: "HILTI-TE30-6S74", status: "En attente", color: "text-orange-500" },
+  useEffect(() => {
+    const getUserProductsAndStats = async () => {
+      try {
+        const bringedProducts = await getProducts(role);
+        const bringedStats = await getStatistics(role);
+        setProducts(bringedProducts);
+        setStats(bringedStats);
+      } catch (error) {
+        console.error(error);
+        setProducts([]);
+        setStats({
+          total: "0",
+          shipping: "0",
+          shipped: "0",
+          waiting: "0"
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    getUserProductsAndStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 flex flex-col">
+        <main className="flex-1 flex items-center justify-center">
+          <div className="min-h-screen flex items-center justify-center">
+            <p className="text-xl">Loading movies...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  const newStats = [
+    { value: stats.total, label: "Produits enregistrés", color: "bg-green-100", icon: "🟢" },
+    { value: stats.shipping, label: "En transit", color: "bg-orange-100", icon: "🟡" },
+    { value: stats.shipped, label: "Livrés", color: "bg-green-100", icon: "🟢" },
+    { value: stats.waiting, label: "En attente", color: "bg-red-100", icon: "🔴" },
   ];
 
   return (
@@ -44,7 +90,7 @@ export const HomePage = () => {
           <h2 className="font-semibold text-lg mb-4">Résumé</h2>
 
           <div className="grid grid-cols-2 gap-4">
-            {stats.map((item, index) => (
+            {newStats.map((item, index) => (
               <div key={index} className="border rounded-2xl p-4 shadow-sm">
                 <div className={`w-10 h-10 ${item.color} rounded-full flex items-center justify-center text-lg`}>
                   {item.icon}
@@ -74,13 +120,13 @@ export const HomePage = () => {
 
                   <div>
                     <h3 className="font-semibold">{product.name}</h3>
-                    <p className="text-gray-500 text-sm">{product.ref}</p>
+                    <p className="text-gray-500 text-sm">{product.reference}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className={`text-sm font-medium ${product.color}`}>
-                    {product.status}
+                  <span className={`text-sm font-medium balck`}>
+                    {product.currentStatus}
                   </span>
 
                   <ChevronRight size={18} className="text-gray-400" />

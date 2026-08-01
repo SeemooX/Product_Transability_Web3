@@ -1,3 +1,4 @@
+const express = require('express');
 const warehouseRouter = express.Router();
 const warehouseController = require('../../controllers/warehouseController');
 const { verifyRoles } = require('../../middlewares/verifyRoles');

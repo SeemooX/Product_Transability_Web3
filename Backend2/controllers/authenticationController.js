@@ -40,7 +40,7 @@ const createUser = async (req, res) => {
 
         const passwordHash = await bcrypt.hash(password, 10);
 
-        const addedUser = await userQueries.createUser({fullName, email, passwordHash, role, walletAddress, companyName});
+        const addedUser = await userQueries.createUser({ fullName, email, passwordHash, role, walletAddress, companyName });
         const user = {
             fullName: addedUser.full_name,
             email: addedUser.email
@@ -54,37 +54,42 @@ const createUser = async (req, res) => {
 }
 
 const handleLogin = async (req, res) => {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    if (!email || !password) return res.status(400).json({ message: 'You need to provide both the password and the email' });
+        if (!email || !password) return res.status(400).json({ message: 'You need to provide both the password and the email' });
 
-    const foundedUser = await userQueries.getUserByEmail(email.toLowerCase());
-    if (!foundedUser) res.status(401).json({ message: "Invalid email or password" });
+        const foundedUser = await userQueries.getUserByEmail(email.toLowerCase());
+        if (!foundedUser) res.status(401).json({ message: "Invalid email or password" });
 
-    const isPwdMatch = await bcrypt.compare(password, foundedUser.passwordHash);
-    if (isPwdMatch) {
-        const accessToken = jwt.sign(
-            {
-                userInfo: {
-                    id: foundedUser.id_user,
-                    email: foundedUser.email,
-                    role: foundedUser.role
-                }
-            },
-            process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: '7d' }
-        )
+        const isPwdMatch = await bcrypt.compare(password, foundedUser.passwordHash);
+        if (isPwdMatch) {
+            const accessToken = jwt.sign(
+                {
+                    userInfo: {
+                        id: foundedUser.id_user,
+                        email: foundedUser.email,
+                        role: foundedUser.role
+                    }
+                },
+                process.env.ACCESS_TOKEN_SECRET,
+                { expiresIn: '7d' }
+            )
 
-        const user = {
-            id_user: foundedUser.id_user,
-            email: foundedUser.email,
-            role: foundedUser.role
+            const user = {
+                id_user: foundedUser.id_user,
+                email: foundedUser.email,
+                role: foundedUser.role
+            }
+
+            return res.status(200).json({ success: true, accessToken, user: user });
+        } else {
+            console.error("Error in requestPasswordReset:", error);
+            return res.status(404).json({ error: "User not found or not allowed" });
         }
-
-        return res.status(200).json({ success: true, accessToken, user: user });
-    } else {
-        console.error("Error in requestPasswordReset:", error);
-        return res.status(404).json({ error: "User not found or not allowed" });
+    } catch (error) {
+        console.error("sever error", error);
+        return res.status(500).json({ error: error.message });
     }
 }
 
