@@ -79,7 +79,8 @@ const handleLogin = async (req, res) => {
             const user = {
                 id_user: foundedUser.id_user,
                 email: foundedUser.email,
-                role: foundedUser.role
+                role: foundedUser.role,
+                name: foundedUser.fullName
             }
 
             return res.status(200).json({ success: true, accessToken, user: user });

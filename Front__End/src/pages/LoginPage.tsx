@@ -33,7 +33,6 @@ export const LoginPage = () => {
             const userData = {
                 userID: data.user.id_user,
                 role: data.user.role,
-                avatar: data.user.image_url,
                 name: data.user.name
             }
             login(data.accessToken, userData)

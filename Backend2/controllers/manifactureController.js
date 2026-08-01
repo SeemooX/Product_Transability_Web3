@@ -282,7 +282,7 @@ const confirmProduct = async (req, res) => {
 
 const manifacturerProducts = async (req, res) => {
     try {
-        const userId = req.id;
+        const userId = req.id;        
 
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;

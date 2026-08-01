@@ -1,11 +1,14 @@
-export const getProducts = async (userRole: any) => {
+export const getProducts = async (userRole: any, page: any) => {
     const normalizedUserRole = userRole.toLowerCase();
     const apiEndpoint = normalizedUserRole === "manufacturer" ? "/manufacturer/products" : normalizedUserRole === "transporter" ? "/transporter/products" : normalizedUserRole === "warehouse" ? "/warehouse/products" : "/store/products";
 
     const response = await fetch(
-        `http://localhost:3000${apiEndpoint}`,
+        `http://localhost:3500${apiEndpoint}?page=${page}`,
         {
-            method: "POST"
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
         }
     )
 
