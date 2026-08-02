@@ -1,5 +1,5 @@
 const { db } = require("../config/dbConnection");
-const { eq, or, sql, count, countDistinct } = require("drizzle-orm");
+const { eq, or, sql, count, countDistinct, and, ilike, asc, desc, } = require("drizzle-orm");
 const { products } = require("../models/schema/products");
 const { productStatuses } = require("../models/schema/productStatuses");
 const { productStatusHistory } = require("../models/schema/productStatusHistory");
@@ -107,20 +107,66 @@ const getByBlockchainId = async (productID) => {
     return product
 }
 
-const getProducts = async (userId, limit, offset) => {
-    const allProducts = await db
+const getProducts = async (userId, limit, offset, search, sort) => {
+    const conditions = [
+        eq(products.manufacturerId, userId),
+    ];
+
+    if (search) {
+        conditions.push(
+            ilike(products.name, `%${search}%`)
+        );
+    }
+
+    let orderBy;
+
+    if (sort === "createdAt_asc") {
+        orderBy = asc(products.createdAt);
+    } else {
+        orderBy = desc(products.createdAt);
+    }
+
+    return await db
         .select()
         .from(products)
-        .where(eq(products.manufacturerId, userId))
-        .orderBy(products.id_product)
+        .where(and(...conditions))
+        .orderBy(orderBy)
         .limit(limit)
         .offset(offset);
-
-    return allProducts;
 };
 
-const getOthersProducts = async (userId, limit, offset) => {
-    const allProducts = await db
+const getOthersProducts = async (userId, limit, offset, search, sort) => {
+    const conditions = [
+        eq(productStatusHistory.performedBy, userId)
+    ];
+
+    if (search) {
+        conditions.push(
+            ilike(products.name, `%${search}%`)
+        );
+    }
+
+    let orderBy;
+
+    switch (sort) {
+        case "createdAt_asc":
+            orderBy = asc(products.createdAt);
+            break;
+
+        case "name_asc":
+            orderBy = asc(products.name);
+            break;
+
+        case "name_desc":
+            orderBy = desc(products.name);
+            break;
+
+        default:
+            orderBy = desc(products.createdAt);
+    }
+
+
+    return await db
         .selectDistinct({
             id_product: products.id_product,
             manufacturerId: products.manufacturerId,
@@ -137,38 +183,64 @@ const getOthersProducts = async (userId, limit, offset) => {
         .from(products)
         .innerJoin(
             productStatusHistory,
-            eq(productStatusHistory.productId, products.id_product)
+            eq(
+                productStatusHistory.productId,
+                products.id_product
+            )
         )
-        .where(eq(productStatusHistory.performedBy, userId))
-        .orderBy(products.id_product)
+        .where(and(...conditions))
+        .orderBy(orderBy)
         .limit(limit)
         .offset(offset);
-
-    return allProducts;
 };
 
-const countProducts = async (userId) => {
+const countProducts = async (userId, search) => {
+    const conditions = [
+        eq(products.manufacturerId, userId),
+    ]
+
+    if (search) {
+        conditions.push(
+            ilike(products.name, `%${search}%`)
+        )
+    }
+
     const result = await db
-        .select({ total: count() })
+        .select({
+            total: count(),
+        })
         .from(products)
-        .where(eq(products.manufacturerId, userId));
+        .where(and(...conditions));
 
     return result[0].total;
 };
 
-const countOthersProducts = async (userId) => {
-    const [result] = await db
+const countOthersProducts = async (userId, search) => {
+    const conditions = [
+        eq(productStatusHistory.performedBy, userId)
+    ];
+
+    if (search) {
+        conditions.push(
+            ilike(products.name, `%${search}%`)
+        );
+    }
+
+    const result = await db
         .select({
             total: countDistinct(products.id_product),
         })
         .from(products)
         .innerJoin(
             productStatusHistory,
-            eq(productStatusHistory.productId, products.id_product)
+            eq(
+                productStatusHistory.productId,
+                products.id_product
+            )
         )
-        .where(eq(productStatusHistory.performedBy, userId));
+        .where(and(...conditions));
 
-    return result.total;
+    return result[0].total;
 };
 
 const getManufacturerStatistics = async (userId) => {
@@ -341,4 +413,4 @@ const getProductInformation = async (productId) => {
     return infos;
 }
 
-module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId, retrieveProduct, updateProduct, retrieveStepType, getProducts, getManufacturerStatistics, getProductHistory, getProductInformation, countProducts, getTransporterStatistics, getOthersProducts, getWarehouseStatistics, getStoreStatistics }
+module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId, retrieveProduct, updateProduct, retrieveStepType, getProducts, getManufacturerStatistics, getProductHistory, getProductInformation, countProducts, getTransporterStatistics, getOthersProducts, getWarehouseStatistics, getStoreStatistics, countOthersProducts }

@@ -282,20 +282,34 @@ const confirmProduct = async (req, res) => {
 
 const manifacturerProducts = async (req, res) => {
     try {
-        const userId = req.id;        
+        const userId = req.id;
 
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
 
+        const search = req.query.search?.trim() || "";
+        const sort = req.query.sort || "createdAt_desc";
+
         const offset = (page - 1) * limit;
 
-        const products = await productQueries.getProducts(userId, limit, offset);
-        if (products == null) {
+        const products = await productQueries.getProducts(
+            userId,
+            limit,
+            offset,
+            search,
+            sort
+        );
+
+        if (!products) {
             return res.status(500).json({
                 error: "Failed to retrieve products.",
             });
         }
-        const totalProducts = await productQueries.countProducts(userId);
+
+        const totalProducts = await productQueries.countProducts(
+            userId,
+            search
+        );
 
         return res.status(200).json({
             products,
@@ -303,14 +317,17 @@ const manifacturerProducts = async (req, res) => {
                 page,
                 limit,
                 totalProducts,
-                totalPages: Math.ceil(totalProducts / limit)
-            }
+                totalPages: Math.ceil(totalProducts / limit),
+            },
         });
     } catch (error) {
-        console.error("sever error", error);
-        return res.status(500).json({ error: "Internal server error" });
+        console.error(error);
+
+        return res.status(500).json({
+            error: "Internal server error",
+        });
     }
-}
+};
 
 const manifacturerStatistics = async (req, res) => {
     try {

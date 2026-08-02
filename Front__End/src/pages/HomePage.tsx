@@ -1,4 +1,4 @@
-import { getProducts } from "@/api/productApi";
+import { getHomeProducts, getProducts } from "@/api/productApi";
 import { getStatistics } from "@/api/statistics";
 import { NavBar } from "@/components/NavBar";
 import { useAuth } from "@/context/AuthContext";
@@ -32,7 +32,7 @@ export const HomePage = () => {
       setLoadingMore(true);
 
     try {
-      const result = await getProducts(role, pageToLoad);
+      const result = await getHomeProducts(role, pageToLoad);
 
       if (pageToLoad === 1) {
         setProducts(result.products);
