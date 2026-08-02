@@ -8,6 +8,6 @@ export interface Product {
   currentStatus: string;
   qrCode?: string | null;
   metadataHash?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }

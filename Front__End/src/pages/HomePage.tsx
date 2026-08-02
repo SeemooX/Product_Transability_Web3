@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import type { Statistics } from "@/types/statistics";
 import type { Product } from "@/types/product";
 import { buildStatsCards } from "@/utils/buildStatsCard";
+import { statusColors } from "@/utils/statusColor";
 
 export const HomePage = () => {
   const [stats, setStats] = useState<Statistics>({
@@ -181,7 +182,7 @@ export const HomePage = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">
+                  <span className={`text-sm font-medium ${statusColors[product.currentStatus] ?? "text-gray-500"}`}>
                     {product.currentStatus}
                   </span>
 
