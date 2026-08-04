@@ -111,7 +111,7 @@ export const ProductsPage = () => {
                     </Link>
 
                     <h1 className="font-bold text-lg">
-                        Liste des produits
+                        {role.toLowerCase() !== "transporter" ? "Liste des produits" : "Liste des produits valable"}
                     </h1>
 
                     <SlidersHorizontal size={20} />
@@ -215,7 +215,7 @@ export const ProductsPage = () => {
                 {products.map((product) => (
                     <Link
                         key={product.id_product}
-                        to={`/products/${product.id_product}`}
+                        to={role.toLowerCase() !== "transporter" ? `/products/${product.id_product}` : `/products/addstep/${product.id_product}`}
                         className="block"
                     >
                         <div className="bg-white rounded-2xl p-4 shadow-sm flex justify-between items-center transition hover:shadow-md active:scale-[0.98]">

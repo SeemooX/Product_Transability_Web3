@@ -194,6 +194,58 @@ const getOthersProducts = async (userId, limit, offset, search, sort) => {
         .offset(offset);
 };
 
+const getAvailableProduct = async (limit, offset, search, sort) => {
+    const conditions = [
+        eq(products.currentStatus, "CREATED")
+    ];
+
+    if (search) {
+        conditions.push(
+            ilike(products.name, `%${search}%`)
+        );
+    }
+
+    let orderBy;
+
+    switch (sort) {
+        case "createdAt_asc":
+            orderBy = asc(products.createdAt);
+            break;
+
+        case "name_asc":
+            orderBy = asc(products.name);
+            break;
+
+        case "name_desc":
+            orderBy = desc(products.name);
+            break;
+
+        default:
+            orderBy = desc(products.createdAt);
+    }
+
+
+    return await db
+        .selectDistinct({
+            id_product: products.id_product,
+            manufacturerId: products.manufacturerId,
+            name: products.name,
+            reference: products.reference,
+            serialNumber: products.serialNumber,
+            description: products.description,
+            currentStatus: products.currentStatus,
+            qrCode: products.qrCode,
+            metadataHash: products.metadataHash,
+            createdAt: products.createdAt,
+            updatedAt: products.updatedAt,
+        })
+        .from(products)
+        .where(and(...conditions))
+        .orderBy(orderBy)
+        .limit(limit)
+        .offset(offset);
+}
+
 const countProducts = async (userId, search) => {
     const conditions = [
         eq(products.manufacturerId, userId),
@@ -238,6 +290,27 @@ const countOthersProducts = async (userId, search) => {
                 products.id_product
             )
         )
+        .where(and(...conditions));
+
+    return result[0].total;
+};
+
+const countAvailableProducts = async (search) => {
+    const conditions = [
+        eq(products.currentStatus, "CREATED")
+    ];
+
+    if (search) {
+        conditions.push(
+            ilike(products.name, `%${search}%`)
+        );
+    }
+
+    const result = await db
+        .select({
+            total: countDistinct(products.id_product),
+        })
+        .from(products)
         .where(and(...conditions));
 
     return result[0].total;
@@ -413,4 +486,4 @@ const getProductInformation = async (productId) => {
     return infos;
 }
 
-module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId, retrieveProduct, updateProduct, retrieveStepType, getProducts, getManufacturerStatistics, getProductHistory, getProductInformation, countProducts, getTransporterStatistics, getOthersProducts, getWarehouseStatistics, getStoreStatistics, countOthersProducts }
+module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId, retrieveProduct, updateProduct, retrieveStepType, getProducts, getManufacturerStatistics, getProductHistory, getProductInformation, countProducts, getTransporterStatistics, getOthersProducts, getWarehouseStatistics, getStoreStatistics, countOthersProducts, getAvailableProduct, countAvailableProducts }

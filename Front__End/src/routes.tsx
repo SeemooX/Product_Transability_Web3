@@ -71,7 +71,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/product/:id',
+    path: '/products/:id',
     element: (
       <ProtectedRoute>
         <ProductDetails />
@@ -79,7 +79,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/addstep',
+    path: 'products/addstep/:id',
     element: (
       <ProtectedRoute>
         <AddStep />

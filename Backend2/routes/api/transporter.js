@@ -8,5 +8,8 @@ transporterRouter.route('/products/statistics')
 
 transporterRouter.route('/products')
     .get(verifyRoles("TRANSPORTER", "ADMIN"), transporterController.transporterProducts);
+    
+transporterRouter.route('/products/available')
+    .get(verifyRoles("TRANSPORTER", "ADMIN"), transporterController.getTransporterAvailableProduct);
 
 module.exports = transporterRouter;

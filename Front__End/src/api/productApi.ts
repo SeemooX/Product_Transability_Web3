@@ -1,6 +1,6 @@
 export const getProducts = async (userRole: any, page: any, debouncedSearch: any, sort: any) => {
     const normalizedUserRole = userRole.toLowerCase();
-    const apiEndpoint = normalizedUserRole === "manufacturer" ? "/manufacturer/products" : normalizedUserRole === "transporter" ? "/transporter/products" : normalizedUserRole === "warehouse" ? "/warehouse/products" : "/store/products";
+    const apiEndpoint = normalizedUserRole === "manufacturer" ? "/manufacturer/products" : normalizedUserRole === "transporter" ? "/transporter/products/available" : normalizedUserRole === "warehouse" ? "/warehouse/products" : "/store/products";
 
     const response = await fetch(
         `http://localhost:3500${apiEndpoint}?page=${page}&search=${debouncedSearch}&sort=${sort}`,
@@ -13,8 +13,8 @@ export const getProducts = async (userRole: any, page: any, debouncedSearch: any
     )
 
     const data = await response.json();
-    
-    if(!response.ok) {
+
+    if (!response.ok) {
         throw new Error(data.error || "Fetching products failed")
     }
 
@@ -36,8 +36,8 @@ export const getHomeProducts = async (userRole: any, page: any) => {
     )
 
     const data = await response.json();
-    
-    if(!response.ok) {
+
+    if (!response.ok) {
         throw new Error(data.error || "Fetching products failed")
     }
 

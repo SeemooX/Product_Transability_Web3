@@ -1,4 +1,4 @@
-import { getHomeProducts, getProducts } from "@/api/productApi";
+import { getHomeProducts } from "@/api/productApi";
 import { getStatistics } from "@/api/statistics";
 import { NavBar } from "@/components/NavBar";
 import { useAuth } from "@/context/AuthContext";
@@ -154,9 +154,9 @@ export const HomePage = () => {
         </div>
 
         {/* Create Product */}
-        <button className="w-full bg-green-600 text-white font-semibold py-4 rounded-2xl active:scale-95 transition mt-5">
+        {role.toLowerCase() === "manufacturer" && <button className="w-full bg-green-600 text-white font-semibold py-4 rounded-2xl active:scale-95 transition mt-5">
           Créer un produit
-        </button>
+        </button>}
 
         {/* Products */}
         <section className="mt-7">
