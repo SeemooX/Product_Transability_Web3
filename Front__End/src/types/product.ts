@@ -28,3 +28,21 @@ export interface ProductMan {
   currentLocation: string;
   statusSince: string;
 }
+
+export interface ProductStatusHistory {
+  id: string;
+  productId: string;
+  stepTypeId: string;
+  code: string;
+  label: string;
+  performedBy: string;
+  location: string | null;
+  notes: string | null;
+  txHash: string | null;
+  createdAt: string;
+}
+
+export interface StatusUIConfig {
+  color: string;
+  icon: any;
+}

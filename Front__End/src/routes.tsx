@@ -12,6 +12,7 @@ import { PublicOnlyRoute } from './context/PublicOnlyRoute';
 import { ProtectedRoute } from './context/ProtectedRoute';
 import { AdminRoute } from './context/AdminProtectedRoute';
 import CreateUser from './pages/admin/CreateUser';
+import { HistoryPage } from './pages/HistoryPage';
 
 export const router = createBrowserRouter([
   {
@@ -51,6 +52,22 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <QRScan />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/history',
+    element: (
+      <ProtectedRoute>
+        <HistoryPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/history/:id',
+    element: (
+      <ProtectedRoute>
+        <ProductHistory />
       </ProtectedRoute>
     ),
   },

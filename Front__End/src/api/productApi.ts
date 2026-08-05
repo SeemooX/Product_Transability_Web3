@@ -58,8 +58,28 @@ export const getProductDetails = async (productId: any) => {
     const data = await response.json();    
 
     if (!response.ok) {
-        throw new Error(data.error || "Fetching products failed")
+        throw new Error(data.error || "Fetching products details failed")
     }
 
     return data.information;
+}
+
+export const getProductHistory = async (productId: any) => {
+    const response = await fetch(
+        `http://localhost:3500/products/${productId}/history`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    )
+
+    const data = await response.json();    
+
+    if (!response.ok) {
+        throw new Error(data.error || "Fetching products history failed")
+    }
+
+    return data.history;
 }
