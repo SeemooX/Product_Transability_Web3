@@ -43,3 +43,23 @@ export const getHomeProducts = async (userRole: any, page: any) => {
 
     return data;
 };
+
+export const getProductDetails = async (productId: any) => {
+    const response = await fetch(
+        `http://localhost:3500/products/${productId}`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    )
+
+    const data = await response.json();    
+
+    if (!response.ok) {
+        throw new Error(data.error || "Fetching products failed")
+    }
+
+    return data.information;
+}

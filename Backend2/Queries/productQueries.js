@@ -3,6 +3,7 @@ const { eq, or, sql, count, countDistinct, and, ilike, asc, desc, } = require("d
 const { products } = require("../models/schema/products");
 const { productStatuses } = require("../models/schema/productStatuses");
 const { productStatusHistory } = require("../models/schema/productStatusHistory");
+const { users } = require("../models/schema/users");
 
 const retrieveProduct = async (productID) => {
     const [product] = await db
@@ -476,14 +477,25 @@ const getProductHistory = async (productId) => {
 }
 
 const getProductInformation = async (productId) => {
-    const infos = await db
-        .select()
+    const info = await db
+        .select({
+            ...products,
+            manufacturerName: users.fullName,
+            currentLocation: productStatusHistory.location,
+            statusSince: productStatusHistory.createdAt,
+        })
         .from(products)
-        .where(
-            eq(products.id_product, productId)
-        );
+        .innerJoin(
+            users,
+            eq(products.manufacturerId, users.id_user)
+        )
+        .leftJoin(
+            productStatusHistory,
+            eq(products.id_product, productStatusHistory.productId)
+        )
+        .where(eq(products.id_product, productId));
 
-    return infos;
-}
+    return info[0];
+};
 
 module.exports = { checkProductUniqueness, insertProduct, getByBlockchainId, retrieveProduct, updateProduct, retrieveStepType, getProducts, getManufacturerStatistics, getProductHistory, getProductInformation, countProducts, getTransporterStatistics, getOthersProducts, getWarehouseStatistics, getStoreStatistics, countOthersProducts, getAvailableProduct, countAvailableProducts }

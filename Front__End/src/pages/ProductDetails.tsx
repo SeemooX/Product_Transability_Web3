@@ -1,3 +1,4 @@
+import { getProductDetails } from "@/api/productApi";
 import { NavBar } from "@/components/NavBar";
 import {
   ArrowLeft,
@@ -6,17 +7,60 @@ import {
   ShieldCheck,
   Check
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router";
+import type { ProductMan } from "@/types/product";
+import { formatDate } from "@/utils/formateDate";
 
 export default function ProductDetails() {
+  const { id } = useParams();
+  const [productDetails, setProductDetails] = useState<ProductMan>();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const bringedDetails = async () => {
+      try {
+        const data = await getProductDetails(id);
+        setProductDetails(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    bringedDetails();
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 max-w-md mx-auto flex flex-col items-center justify-center">
+        <div className="bg-white rounded-3xl shadow-sm p-8 flex flex-col items-center">
+
+          <div className="w-14 h-14 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+
+          <p className="mt-5 text-gray-700 font-medium">
+            Chargement des details du produits...
+          </p>
+
+          <p className="mt-1 text-sm text-gray-400">
+            Veuillez patienter
+          </p>
+
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-md mx-auto min-h-screen bg-gray-100 flex flex-col">
 
       {/* Header */}
       <header className="bg-white px-5 pt-10 pb-5 shadow-sm">
         <div className="flex items-center justify-between">
-          <button>
+          <Link to="/products">
             <ArrowLeft size={22} />
-          </button>
+          </Link>
 
           <h1 className="text-lg font-semibold">
             Détail du produit
@@ -44,7 +88,7 @@ export default function ProductDetails() {
             <div className="flex-1">
 
               <h2 className="text-2xl font-bold leading-8">
-                Perceuse Bosch X200
+                {productDetails?.name}
               </h2>
 
               <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-xl mt-4">
@@ -68,7 +112,7 @@ export default function ProductDetails() {
               </span>
 
               <span className="font-medium">
-                BOSCH-X200-4S87
+                {productDetails?.reference}
               </span>
             </div>
 
@@ -78,7 +122,7 @@ export default function ProductDetails() {
               </span>
 
               <span className="font-medium">
-                SN-2024-02-14587
+                {productDetails?.serialNumber}
               </span>
             </div>
 
@@ -88,7 +132,7 @@ export default function ProductDetails() {
               </span>
 
               <span className="font-medium">
-                12/02/2024
+                {formatDate(productDetails?.createdAt || "12/02/2024")}
               </span>
             </div>
 
@@ -98,7 +142,7 @@ export default function ProductDetails() {
               </span>
 
               <span className="font-medium">
-                Bosch Allemagne
+                {productDetails?.manufacturerName}
               </span>
             </div>
 
@@ -150,15 +194,15 @@ export default function ProductDetails() {
               <div>
 
                 <h4 className="text-green-600 font-bold text-xl">
-                  En magasin
+                  {productDetails?.currentStatus}
                 </h4>
 
                 <p className="text-gray-700 mt-1">
-                  Lens – Leroy Merlin
+                  {productDetails?.currentLocation}
                 </p>
 
                 <p className="text-gray-500 text-sm mt-1">
-                  Depuis le 18/02/2024
+                  {formatDate(productDetails?.statusSince || "12/02/2024")}
                 </p>
 
               </div>
