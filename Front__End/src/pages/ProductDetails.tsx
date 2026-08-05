@@ -11,11 +11,14 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import type { ProductMan } from "@/types/product";
 import { formatDate } from "@/utils/formateDate";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ProductDetails() {
   const { id } = useParams();
   const [productDetails, setProductDetails] = useState<ProductMan>();
+  const [infos, setInfos] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { role } = useAuth();
 
   useEffect(() => {
     const bringedDetails = async () => {
@@ -162,15 +165,29 @@ export default function ProductDetails() {
 
         {/* Technical Information */}
 
-        <button className="w-full mt-5 bg-white rounded-2xl shadow-sm px-5 py-5 flex items-center justify-between">
+        {role.toLowerCase() === "manufacturer" ? (
+          <button
+            className="w-full mt-5 bg-white rounded-2xl shadow-sm px-5 py-5 flex items-center justify-between"
+            onClick={() => setInfos(true)}
+          >
+            <span className="font-semibold text-lg">
+              Informations techniques
+            </span>
 
-          <span className="font-semibold text-lg">
-            Informations techniques
-          </span>
+            <ChevronRight size={20} className="text-gray-400" />
+          </button>
+        ) : (
+          <Link
+            to={`/products/addstep/${id}`}
+            className="w-full mt-5 bg-white rounded-2xl shadow-sm px-5 py-5 flex items-center justify-between"
+          >
+            <span className="font-semibold text-lg">
+              Ajouter une étape
+            </span>
 
-          <ChevronRight size={20} className="text-gray-400" />
-
-        </button>
+            <ChevronRight size={20} className="text-gray-400" />
+          </Link>
+        )}
 
         {/* Current Status */}
 
@@ -214,6 +231,79 @@ export default function ProductDetails() {
         </section>
 
       </main>
+
+      {infos && (
+        <>
+          <div
+            onClick={() => setInfos(false)}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+          />
+
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-[32px] shadow-2xl z-50 animate-slide-up"
+          >
+            <div className="flex justify-center pt-3">
+              <div className="w-12 h-1.5 rounded-full bg-gray-300" />
+            </div>
+
+            <div className="flex items-center justify-between px-6 pt-5 pb-2">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Informations techniques
+                </h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Données enregistrées sur le produit
+                </p>
+              </div>
+            </div>
+
+            <div className="px-6 pb-8 pt-4 space-y-5">
+
+              {/* Description */}
+              <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
+                <p className="text-xs uppercase tracking-wide text-gray-400 font-semibold">
+                  Description
+                </p>
+
+                <p className="mt-3 text-[15px] leading-7 text-gray-700">
+                  {productDetails?.description || "Aucune description disponible."}
+                </p>
+              </div>
+
+              {/* QR Code */}
+              <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+                <p className="text-xs uppercase tracking-wide text-gray-400 font-semibold">
+                  QR Code
+                </p>
+
+                <p className="mt-2 text-sm font-mono text-gray-700 break-all">
+                  {productDetails?.qrCode}
+                </p>
+              </div>
+
+              {/* Metadata Hash */}
+              <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+                <p className="text-xs uppercase tracking-wide text-gray-400 font-semibold">
+                  Metadata Hash
+                </p>
+
+                <p className="mt-2 text-xs font-mono text-gray-700 break-all leading-6">
+                  {productDetails?.metadataHash}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setInfos(false)}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl py-4 transition"
+              >
+                Fermer
+              </button>
+
+            </div>
+          </div>
+        </>
+      )}
 
       <NavBar />
 

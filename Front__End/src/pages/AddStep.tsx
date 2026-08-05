@@ -8,7 +8,7 @@ export const AddStep = () => {
             {/* Header */}
             <header className="bg-white px-5 pt-10 pb-5 shadow-sm">
                 <div className="flex items-center justify-between">
-                    <Link to="/home">
+                    <Link to="/products">
                         <button>
                             <ArrowLeft size={22} />
                         </button>
