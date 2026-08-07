@@ -8,6 +8,7 @@ import type { Statistics } from "@/types/statistics";
 import type { Product } from "@/types/product";
 import { buildStatsCards } from "@/utils/buildStatsCard";
 import { statusColors } from "@/utils/statusColor";
+import { Link } from "react-router";
 
 export const HomePage = () => {
   const [stats, setStats] = useState<Statistics>({
@@ -154,9 +155,11 @@ export const HomePage = () => {
         </div>
 
         {/* Create Product */}
-        {role.toLowerCase() === "manufacturer" && <button className="w-full bg-green-600 text-white font-semibold py-4 rounded-2xl active:scale-95 transition mt-5">
-          Créer un produit
-        </button>}
+        {role.toLowerCase() === "manufacturer" && <Link to="/createProduct">
+          <button className="w-full bg-green-600 text-white font-semibold py-4 rounded-2xl active:scale-95 transition mt-5">
+            Créer un produit
+          </button>
+        </Link>}
 
         {/* Products */}
         <section className="mt-7">

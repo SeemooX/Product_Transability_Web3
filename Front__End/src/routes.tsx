@@ -13,6 +13,7 @@ import { ProtectedRoute } from './context/ProtectedRoute';
 import { AdminRoute } from './context/AdminProtectedRoute';
 import CreateUser from './pages/admin/CreateUser';
 import { HistoryPage } from './pages/HistoryPage';
+import CreateProduct from './pages/manufacturer/CreateProduct';
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +30,15 @@ export const router = createBrowserRouter([
       <PublicOnlyRoute>
         <LoginPage />
       </PublicOnlyRoute>
+    ),
+  },
+
+  {
+    path: '/createProduct',
+    element: (
+      <ProtectedRoute>
+        <CreateProduct />
+      </ProtectedRoute>
     ),
   },
   {
@@ -72,14 +82,6 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/history',
-    element: (
-      <ProtectedRoute>
-        <ProductHistory />
-      </ProtectedRoute>
-    ),
-  },
-  {
     path: '/profile',
     element: (
       <ProtectedRoute>
@@ -110,5 +112,5 @@ export const router = createBrowserRouter([
         <CreateUser />
       </AdminRoute>
     ),
-  }
+  },
 ]);
