@@ -70,7 +70,7 @@ const prepareProduct = async (req, res) => {
 
 const confirmProduct = async (req, res) => {
     try {
-        let { productID, txHash, name, reference, serialNumber, description } = req.body; // Consider later using Redis cache        
+        let { productID, txHash, name, reference, serialNumber, description } = req.body; // Consider later using Redis cache                
 
         if (!/^[A-Za-z0-9 _-]{1,100}$/.test(name.trim())) {
             return res.status(400).json({ error: "Invalid name." });
@@ -127,43 +127,24 @@ const confirmProduct = async (req, res) => {
         }
 
         const tx = await provider.getTransaction(txHash.trim());
-        /* Example Output
-        {
-            hash: "...",
-            from: "0x...",
-            to: "0x...",
-            value: 1000000000000000000n,
-            gasLimit: 21000n,
-            nonce: 15,
-            data: "0x..."
-        }
-        */
+
         if (!tx) {
             return res.status(400).json({
                 error: "Transaction not found"
-            })
-        }
-        if (tx.from.toLowerCase() !== apiCaller.walletAddress.toLowerCase()) {
-            return res.status(400).json({
-                error: "You did not make this transaction"
-            })
-        }
-        if (tx.to.toLowerCase() !== process.env.PRODUCT_TRACKING_ADDRESS.toLowerCase()) {
-            return res.status(400).json({
-                error: "Transaction is not for the ProductTracking contract"
-            })
+            });
         }
 
         const iface = new ethers.Interface(CONTRACT_FUNCTIONS);
 
-        // It will read the first 4 bytes, and looks for the matching selector in the ABI. If found it gets decoded
         let decoded;
         try {
             decoded = iface.parseTransaction({
                 data: tx.data,
                 value: tx.value,
             });
-        } catch {
+        } catch (error) {
+            console.error("DECODE ERROR:", error);
+
             return res.status(400).json({
                 error: "Invalid contract call",
             });

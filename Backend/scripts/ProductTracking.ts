@@ -15,7 +15,7 @@ const address = await contract.getAddress();
 console.log("ProductTracking deployed at:", address);
 
 // Convert the UUID to bytes32
-const productId = id("45dcd27b-2c2c-4325-955f-a89a537dbce3");
+/* const productId = id("45dcd27b-2c2c-4325-955f-a89a537dbce3");
 
 const metadataHash =
     "0x9e659fd7f02ddc9454e057d0f9969f7436d6662cd03d742bce78551129dc48aa";
@@ -47,4 +47,4 @@ const tx1 = await contract.addTraceabilityEvent(
 
 await tx1.wait();
 
-console.log("Product updated successfully!");
+console.log("Product updated successfully!"); */

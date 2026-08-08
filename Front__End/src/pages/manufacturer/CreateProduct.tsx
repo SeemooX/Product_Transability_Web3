@@ -1,6 +1,10 @@
-import { useState } from "react";
-import { ArrowLeft, PackagePlus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, PackagePlus, Check } from "lucide-react";
 import { Link } from "react-router";
+import { useAppKitAccount } from "@reown/appkit/react";
+import { useAppKit } from "@reown/appkit/react";
+import { useProductContract } from "@/hooks/useProductContract";
+import { createProductFlow } from "@/services/product.service";
 
 interface ProductForm {
   name: string;
@@ -16,6 +20,21 @@ export default function CreateProduct() {
     serialNumber: "",
     description: "",
   });
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const { isConnected } = useAppKitAccount();
+  const { open, /* close */ } = useAppKit();
+  const { getContract } = useProductContract();
+
+  useEffect(() => {
+    if (!isConnected) {
+      open({
+        view: "Connect",
+        namespace: "eip155",
+      });
+    }
+  }, [isConnected, open]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -28,12 +47,25 @@ export default function CreateProduct() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log(form);
+    try {
+      setIsCreating(true);
 
-    // await createProduct(form);
+      const contract = await getContract();
+
+      const result = await createProductFlow(form, contract);
+
+      if (result) {
+        setShowSuccess(true);
+      }
+
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -176,15 +208,54 @@ export default function CreateProduct() {
 
           <button
             type="submit"
-            className="w-full rounded-2xl bg-green-600 py-4 text-white font-semibold shadow active:scale-95 transition"
+            disabled={isCreating}
+            className="w-full rounded-2xl bg-green-600 py-4 text-white font-semibold shadow active:scale-95 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Créer le produit
+            {isCreating ? "Création en cours..." : "Créer le produit"}
           </button>
 
         </form>
 
       </main>
 
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-5">
+
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl">
+
+            {/* Success icon */}
+
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <Check
+                size={32}
+                className="text-green-600"
+              />
+            </div>
+
+            <h2 className="text-xl font-bold text-gray-900">
+              Produit créé avec succès
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500">
+              Le produit a été enregistré avec succès
+              dans le système.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setShowSuccess(false)}
+              className="mt-6 w-full rounded-2xl bg-green-600 py-3.5 font-semibold text-white transition active:scale-95"
+            >
+              Continuer
+            </button>
+
+          </div>
+
+        </div>
+      )}
+
     </div>
+
+
   );
 }

@@ -1,9 +1,10 @@
-export const prepareProduct = async (productData: any) => {
+export const prepareProduct = async (productData: any) => {    
     const response = await fetch(
         `http://localhost:3500/manufacturer/product/prepare`,
         {
             method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 Authorization: `Bearer ${localStorage.getItem("token")}`
             },
             body: JSON.stringify(productData) // { name, reference, serialNumber, description }
@@ -25,6 +26,7 @@ export const confirmProduct = async (productData: any) => {
         {
             method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 Authorization: `Bearer ${localStorage.getItem("token")}`
             },
             body: JSON.stringify(productData) // { productID, txHash, name, reference, serialNumber, description }
