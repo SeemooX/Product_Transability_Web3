@@ -7,6 +7,7 @@ contract ProductTracking {
         PICKED_UP,
         DELIVERED_TO_WAREHOUSE,
         RECEIVED_AT_WAREHOUSE,
+        PICKED_UP_FROM_WAREHOUSE,
         READY_FOR_DISPATCH,
         DELIVERED_TO_STORE,
         AVAILABLE_FOR_SALE

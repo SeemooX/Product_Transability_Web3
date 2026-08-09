@@ -166,17 +166,7 @@ const confirmTraceProduct = async (req, res) => {
         if (!tx) {
             return res.status(400).json({
                 error: "Transaction not found"
-            })
-        }
-        if (tx.from.toLowerCase() !== apiCaller.walletAddress.toLowerCase()) {
-            return res.status(400).json({
-                error: "You did not make this transaction"
-            })
-        }
-        if (tx.to.toLowerCase() !== process.env.PRODUCT_TRACKING_ADDRESS.toLowerCase()) {
-            return res.status(400).json({
-                error: "Transaction is not for the ProductTracking contract"
-            })
+            });
         }
 
         const iface = new ethers.Interface(CONTRACT_FUNCTIONS);
@@ -187,7 +177,9 @@ const confirmTraceProduct = async (req, res) => {
                 data: tx.data,
                 value: tx.value,
             });
-        } catch {
+        } catch (error) {
+            console.error("DECODE ERROR:", error);
+
             return res.status(400).json({
                 error: "Invalid contract call",
             });
@@ -205,7 +197,7 @@ const confirmTraceProduct = async (req, res) => {
         }
         if (!decoded || decoded.name !== "addTraceabilityEvent") {
             return res.status(400).json({
-                error: "Transaction must call createProduct"
+                error: "Transaction must call addTraceabilityEvent"
             });
         }
 

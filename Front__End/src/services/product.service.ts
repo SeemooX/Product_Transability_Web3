@@ -1,5 +1,6 @@
 import { prepareProduct, confirmProduct } from "@/api/manufacturer";
-import { createProduct } from "@/blockchain/product.contract";
+import { confirmTraceProduct, prepareTraceProduct } from "@/api/productApi";
+import { addTraceabilityEvent, createProduct } from "@/blockchain/product.contract";
 interface ProductData {
     name: string;
     reference: string;
@@ -29,4 +30,72 @@ export const createProductFlow = async (productData: ProductData, ProductTraceCo
     });
 
     return confirmedProduct;
+};
+
+export const addTraceabilityProductFlow = async (
+    productId: any,
+    productData: any,
+    ProductTraceContract: any
+) => {
+    try {
+        const preparedProductData = {
+            stepType: productData.status,
+            location: productData.location,
+            notes: productData.comment,
+        };
+
+        const preparedProduct = await prepareTraceProduct(
+            productId,
+            preparedProductData
+        );
+
+        if (!preparedProduct) {
+            throw new Error("La préparation du produit a échoué.");
+        }
+
+        const blockchainProductData = {
+            id: productId,
+            stepType: productData.status,
+            eventHash: preparedProduct.eventHash,
+        };
+
+        const txHash = await addTraceabilityEvent(
+            ProductTraceContract,
+            blockchainProductData
+        );
+
+        if (!txHash) {
+            throw new Error(
+                "La création de l'événement blockchain a échoué."
+            );
+        }
+
+        const confirmedProductData = {
+            stepType: productData.status,
+            location: productData.location,
+            notes: productData.comment,
+            txHash,
+        };
+
+        const confirmedTrace = await confirmTraceProduct(
+            productId,
+            confirmedProductData
+        );
+
+        if (!confirmedTrace) {
+            throw new Error(
+                "La confirmation de la traçabilité a échoué."
+            );
+        }
+
+        return confirmedTrace;
+    } catch (error) {
+        console.error(
+            "addTraceabilityProductFlow failed:",
+            error
+        );
+
+        // propagate the error to the component
+        throw error;
+    }
 };

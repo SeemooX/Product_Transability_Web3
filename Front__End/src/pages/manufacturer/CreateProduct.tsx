@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, PackagePlus, Check } from "lucide-react";
+import { ArrowLeft, PackagePlus, Check, X } from "lucide-react";
 import { Link } from "react-router";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useAppKit } from "@reown/appkit/react";
@@ -21,6 +21,7 @@ export default function CreateProduct() {
     description: "",
   });
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showFailure, setShowFailure] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   const { isConnected } = useAppKitAccount();
@@ -59,6 +60,8 @@ export default function CreateProduct() {
 
       if (result) {
         setShowSuccess(true);
+      } else {
+        setShowFailure(true);
       }
 
     } catch (error) {
@@ -254,8 +257,38 @@ export default function CreateProduct() {
         </div>
       )}
 
+      {showFailure && (
+        <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl">
+
+          {/* Failure icon */}
+
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+            <X
+              size={32}
+              className="text-red-600"
+            />
+          </div>
+
+          <h2 className="text-xl font-bold text-gray-900">
+            Échec de la création
+          </h2>
+
+          <p className="mt-2 text-sm text-gray-500">
+            Une erreur est survenue lors de la création du produit.
+            Veuillez réessayer.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => setShowFailure(false)}
+            className="mt-6 w-full rounded-2xl bg-red-600 py-3.5 font-semibold text-white transition active:scale-95"
+          >
+            Fermer
+          </button>
+
+        </div>
+      )}
+
     </div>
-
-
   );
 }

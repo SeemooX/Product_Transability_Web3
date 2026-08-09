@@ -5,7 +5,7 @@ import { Link } from "react-router";
 import type { Product } from "@/types/product";
 import { formatDate } from "@/utils/formateDate";
 import { statusColors } from "@/utils/statusColor";
-import { getProducts } from "@/api/productApi";
+import { getHomeProducts, getProducts } from "@/api/productApi";
 import { useAuth } from "@/context/AuthContext";
 
 export const HistoryPage = () => {
@@ -31,7 +31,7 @@ export const HistoryPage = () => {
             setLoadingMore(true);
 
         try {
-            const result = await getProducts(role, pageToLoad, debouncedSearch, sort);
+            const result = await getHomeProducts(role, pageToLoad, debouncedSearch);
 
             if (pageToLoad === 1) {
                 setProducts(result.products);

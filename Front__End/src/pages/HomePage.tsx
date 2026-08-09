@@ -33,7 +33,7 @@ export const HomePage = () => {
       setLoadingMore(true);
 
     try {
-      const result = await getHomeProducts(role, pageToLoad);
+      const result = await getHomeProducts(role, pageToLoad, "");
 
       if (pageToLoad === 1) {
         setProducts(result.products);

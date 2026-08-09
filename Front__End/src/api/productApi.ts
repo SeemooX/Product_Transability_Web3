@@ -21,12 +21,12 @@ export const getProducts = async (userRole: any, page: any, debouncedSearch: any
     return data;
 };
 
-export const getHomeProducts = async (userRole: any, page: any) => {
+export const getHomeProducts = async (userRole: any, page: any, debouncedSearch: any) => {
     const normalizedUserRole = userRole.toLowerCase();
     const apiEndpoint = normalizedUserRole === "manufacturer" ? "/manufacturer/products" : normalizedUserRole === "transporter" ? "/transporter/products" : normalizedUserRole === "warehouse" ? "/warehouse/products" : "/store/products";
 
     const response = await fetch(
-        `http://localhost:3500${apiEndpoint}?page=${page}`,
+        `http://localhost:3500${apiEndpoint}?page=${page}&search=${debouncedSearch}`,
         {
             method: "GET",
             headers: {
@@ -82,4 +82,48 @@ export const getProductHistory = async (productId: any) => {
     }
 
     return data.history;
+}
+
+export const prepareTraceProduct = async (productId: any, productData: any) => {    
+    const response = await fetch(
+        `http://localhost:3500/products/${productId}/trace/prepare`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify(productData) // { name, reference, serialNumber, description }
+        }
+    )
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || "Product preparation failed")
+    }
+
+    return data;
+}
+
+export const confirmTraceProduct = async (productId: any, productData: any) => {
+    const response = await fetch(
+        `http://localhost:3500/products/${productId}/trace/confirm`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify(productData) // { productID, txHash, name, reference, serialNumber, description }
+        }
+    )
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || "Product confirmation failed")
+    }
+
+    return data;
 }
