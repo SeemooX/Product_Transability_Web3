@@ -1,4 +1,5 @@
 import { NavBar } from "@/components/NavBar";
+import { useAuth } from "@/context/AuthContext";
 import {
   User,
   Shield,
@@ -10,6 +11,8 @@ import {
 } from "lucide-react";
 
 export const ProfilePage = () => {
+  const { logout } = useAuth();
+
   const accountItems = [
     { icon: User, label: "Informations personnelles" },
     { icon: Shield, label: "Sécurité" },
@@ -133,7 +136,7 @@ export const ProfilePage = () => {
         </section>
 
         {/* Logout */}
-        <button className="mt-10 flex w-full items-center justify-center gap-3 rounded-2xl bg-red-50 py-4 font-semibold text-red-600 transition active:scale-[0.98]">
+        <button className="mt-10 flex w-full items-center justify-center gap-3 rounded-2xl bg-red-50 py-4 font-semibold text-red-600 transition active:scale-[0.98]" onClick={() => logout()}>
           <LogOut size={20} />
           <span>Se déconnecter</span>
         </button>
