@@ -1,9 +1,11 @@
+const apiURL = import.meta.env.VITE_BROWSER_API_URL;
+
 export const getStatistics = async (userRole: any) => {
     const normalizedUserRole = userRole.toLowerCase();
     const apiEndpoint = normalizedUserRole === "manufacturer" ? "/manufacturer/products/statistics" : normalizedUserRole === "transporter" ? "/transporter/products/statistics" : normalizedUserRole === "warehouse" ? "/warehouse/products/statistics" : "/store/products/statistics";
 
     const response = await fetch(
-        `http://localhost:3500${apiEndpoint}`,
+        `${apiURL}${apiEndpoint}`,
         {
             method: "GET",
             headers: {

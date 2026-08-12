@@ -1,6 +1,8 @@
+const apiURL = import.meta.env.VITE_BROWSER_API_URL;
+
 export const prepareProduct = async (productData: any) => {    
     const response = await fetch(
-        `http://localhost:3500/manufacturer/product/prepare`,
+        `${apiURL}/manufacturer/product/prepare`,
         {
             method: "POST",
             headers: {
@@ -22,7 +24,7 @@ export const prepareProduct = async (productData: any) => {
 
 export const confirmProduct = async (productData: any) => {
     const response = await fetch(
-        `http://localhost:3500/manufacturer/product/confirm`,
+        `${apiURL}/manufacturer/product/confirm`,
         {
             method: "POST",
             headers: {

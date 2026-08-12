@@ -1,6 +1,8 @@
+const apiURL = import.meta.env.VITE_BROWSER_API_URL;
+
 export const loginUser = async (loginObject: any) => {
     const response = await fetch(
-        "http://localhost:3500/login",
+        `${apiURL}/login`,
         {
             method: "POST",
             headers: {
@@ -21,7 +23,7 @@ export const loginUser = async (loginObject: any) => {
 
 export const createUser = async (singupObject: any) => {
     const response = await fetch(
-        "http://localhost:3000/login",
+        `${apiURL}/register`,
         {
             method: "POST",
             headers: {

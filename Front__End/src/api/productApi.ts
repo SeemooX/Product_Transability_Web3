@@ -1,9 +1,11 @@
+const apiURL = import.meta.env.VITE_BROWSER_API_URL;
+
 export const getProducts = async (userRole: any, page: any, debouncedSearch: any, sort: any) => {
     const normalizedUserRole = userRole.toLowerCase();
     const apiEndpoint = normalizedUserRole === "manufacturer" ? "/manufacturer/products" : normalizedUserRole === "transporter" ? "/transporter/products/available" : normalizedUserRole === "warehouse" ? "/warehouse/products" : "/store/products";
 
     const response = await fetch(
-        `http://localhost:3500${apiEndpoint}?page=${page}&search=${debouncedSearch}&sort=${sort}`,
+        `${apiURL}${apiEndpoint}?page=${page}&search=${debouncedSearch}&sort=${sort}`,
         {
             method: "GET",
             headers: {
@@ -26,7 +28,7 @@ export const getHomeProducts = async (userRole: any, page: any, debouncedSearch:
     const apiEndpoint = normalizedUserRole === "manufacturer" ? "/manufacturer/products" : normalizedUserRole === "transporter" ? "/transporter/products" : normalizedUserRole === "warehouse" ? "/warehouse/products" : "/store/products";
 
     const response = await fetch(
-        `http://localhost:3500${apiEndpoint}?page=${page}&search=${debouncedSearch}`,
+        `${apiURL}${apiEndpoint}?page=${page}&search=${debouncedSearch}`,
         {
             method: "GET",
             headers: {
@@ -46,7 +48,7 @@ export const getHomeProducts = async (userRole: any, page: any, debouncedSearch:
 
 export const getProductDetails = async (productId: any) => {
     const response = await fetch(
-        `http://localhost:3500/products/${productId}`,
+        `${apiURL}/products/${productId}`,
         {
             method: "GET",
             headers: {
@@ -66,7 +68,7 @@ export const getProductDetails = async (productId: any) => {
 
 export const getProductHistory = async (productId: any) => {
     const response = await fetch(
-        `http://localhost:3500/products/${productId}/history`,
+        `${apiURL}/products/${productId}/history`,
         {
             method: "GET",
             headers: {
@@ -86,7 +88,7 @@ export const getProductHistory = async (productId: any) => {
 
 export const prepareTraceProduct = async (productId: any, productData: any) => {    
     const response = await fetch(
-        `http://localhost:3500/products/${productId}/trace/prepare`,
+        `${apiURL}/products/${productId}/trace/prepare`,
         {
             method: "POST",
             headers: {
@@ -108,7 +110,7 @@ export const prepareTraceProduct = async (productId: any, productData: any) => {
 
 export const confirmTraceProduct = async (productId: any, productData: any) => {
     const response = await fetch(
-        `http://localhost:3500/products/${productId}/trace/confirm`,
+        `${apiURL}/products/${productId}/trace/confirm`,
         {
             method: "POST",
             headers: {
