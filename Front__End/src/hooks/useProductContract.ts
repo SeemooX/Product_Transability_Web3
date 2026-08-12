@@ -1,7 +1,7 @@
 import { Contract, BrowserProvider } from "ethers";
 import { useAppKitProvider, useAppKitAccount } from "@reown/appkit/react";
 import { ProductTrackingAbi } from "@/utils/productABI";
-import type { Eip1193Provider } from "ethers";
+/* import type { Eip1193Provider } from "ethers"; */
 
 export function useProductContract() {
   const { isConnected } = useAppKitAccount();

@@ -5,7 +5,7 @@ import { Link } from "react-router";
 import type { Product } from "@/types/product";
 import { formatDate } from "@/utils/formateDate";
 import { statusColors } from "@/utils/statusColor";
-import { getHomeProducts, getProducts } from "@/api/productApi";
+import { getHomeProducts } from "@/api/productApi";
 import { useAuth } from "@/context/AuthContext";
 
 export const HistoryPage = () => {
