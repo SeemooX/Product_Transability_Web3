@@ -195,39 +195,84 @@ const getOthersProducts = async (userId, limit, offset, search, sort) => {
         .offset(offset);
 };
 
-const getAvailableProduct = async (limit, offset, search, sort) => {
-    const conditions = [
-        eq(products.currentStatus, "CREATED")
-    ];
+const getAvailableProduct = async (
+    limit,
+    offset,
+    search,
+    sort,
+    callerId
+) => {
+    const generalAvailableProducts = or(
+        eq(products.currentStatus, "CREATED"),
+        eq(products.currentStatus, "READY_FOR_DISPATCH")
+    );
 
-    if (search) {
-        conditions.push(
-            ilike(products.name, `%${search}%`)
-        );
-    }
+    const pickedUpProducts = and(
+        eq(products.currentStatus, "PICKED_UP"),
+
+        sql`(
+            SELECT ps.code
+            FROM ${productStatusHistory} psh
+            INNER JOIN ${productStatuses} ps
+                ON ps.id_product_status = psh.step_type_id
+            WHERE psh.product_id = ${products.id_product}
+            ORDER BY psh.created_at DESC, psh.id DESC
+            LIMIT 1
+        ) = 'PICKED_UP'`,
+
+        sql`(
+            SELECT psh.performed_by
+            FROM ${productStatusHistory} psh
+            WHERE psh.product_id = ${products.id_product}
+            ORDER BY psh.created_at DESC, psh.id DESC
+            LIMIT 1
+        ) = ${callerId}`
+    );
+
+    const searchCondition = search
+        ? ilike(products.name, `%${search}%`)
+        : undefined;
+
+    const statusPriority = sql`
+        CASE
+            WHEN ${products.currentStatus} = 'PICKED_UP' THEN 0
+            ELSE 1
+        END
+    `;
 
     let orderBy;
 
     switch (sort) {
         case "createdAt_asc":
-            orderBy = asc(products.createdAt);
+            orderBy = [
+                statusPriority,
+                asc(products.createdAt),
+            ];
             break;
 
         case "name_asc":
-            orderBy = asc(products.name);
+            orderBy = [
+                statusPriority,
+                asc(products.name),
+            ];
             break;
 
         case "name_desc":
-            orderBy = desc(products.name);
+            orderBy = [
+                statusPriority,
+                desc(products.name),
+            ];
             break;
 
         default:
-            orderBy = desc(products.createdAt);
+            orderBy = [
+                statusPriority,
+                desc(products.createdAt),
+            ];
     }
 
-
     return await db
-        .selectDistinct({
+        .select({
             id_product: products.id_product,
             manufacturerId: products.manufacturerId,
             name: products.name,
@@ -241,11 +286,19 @@ const getAvailableProduct = async (limit, offset, search, sort) => {
             updatedAt: products.updatedAt,
         })
         .from(products)
-        .where(and(...conditions))
-        .orderBy(orderBy)
+        .where(
+            and(
+                or(
+                    generalAvailableProducts,
+                    pickedUpProducts
+                ),
+                searchCondition
+            )
+        )
+        .orderBy(...orderBy)
         .limit(limit)
         .offset(offset);
-}
+};
 
 const countProducts = async (userId, search) => {
     const conditions = [
@@ -296,9 +349,39 @@ const countOthersProducts = async (userId, search) => {
     return result[0].total;
 };
 
-const countAvailableProducts = async (search) => {
+const countAvailableProducts = async (search, callerId) => {
+    const generalAvailableProducts = or(
+        eq(products.currentStatus, "CREATED"),
+        eq(products.currentStatus, "READY_FOR_DISPATCH")
+    );
+
+    const pickedUpProducts = and(
+        eq(products.currentStatus, "PICKED_UP"),
+
+        sql`(
+            SELECT ps.code
+            FROM ${productStatusHistory} psh
+            INNER JOIN ${productStatuses} ps
+                ON ps.id_product_status = psh.step_type_id
+            WHERE psh.product_id = ${products.id_product}
+            ORDER BY psh.created_at DESC, psh.id DESC
+            LIMIT 1
+        ) = 'PICKED_UP'`,
+
+        sql`(
+            SELECT psh.performed_by
+            FROM ${productStatusHistory} psh
+            WHERE psh.product_id = ${products.id_product}
+            ORDER BY psh.created_at DESC, psh.id DESC
+            LIMIT 1
+        ) = ${callerId}`
+    );
+
     const conditions = [
-        eq(products.currentStatus, "CREATED")
+        or(
+            generalAvailableProducts,
+            pickedUpProducts
+        ),
     ];
 
     if (search) {
@@ -314,7 +397,7 @@ const countAvailableProducts = async (search) => {
         .from(products)
         .where(and(...conditions));
 
-    return result[0].total;
+    return Number(result[0].total);
 };
 
 const getManufacturerStatistics = async (userId) => {
@@ -404,31 +487,31 @@ const getWarehouseStatistics = async (userId) => {
     const [stats] = await db
         .select({
             received: sql`
-                count(*)
-                filter (
-                    where ${productStatusHistory.code} in (
-                    'RECEIVED_AT_WAREHOUSE',
-                    )
+                count(*) FILTER (
+                    WHERE ${productStatuses.code} = 'RECEIVED_AT_WAREHOUSE'
                 )
-                `,
-            ready: `
-                count(*)
-                filter (
-                    where ${productStatusHistory.code} in (
-                    'READY_FOR_DISPATCH',
-                    )
+            `,
+
+            ready: sql`
+                count(*) FILTER (
+                    WHERE ${productStatuses.code} = 'READY_FOR_DISPATCH'
                 )
-                `,
+            `,
         })
         .from(productStatusHistory)
         .innerJoin(
             productStatuses,
-            eq(productStatusHistory.stepTypeId, productStatuses.id_product_status)
+            eq(
+                productStatusHistory.stepTypeId,
+                productStatuses.id_product_status
+            )
         )
-        .where(eq(productStatusHistory.performedBy, userId));
+        .where(
+            eq(productStatusHistory.performedBy, userId)
+        );
 
     return stats;
-}
+};
 
 const getStoreStatistics = async (userId) => {
     const [stats] = await db

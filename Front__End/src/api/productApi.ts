@@ -38,6 +38,8 @@ export const getHomeProducts = async (userRole: any, page: any, debouncedSearch:
     )
 
     const data = await response.json();
+    console.log("launched: ", data);
+    
 
     if (!response.ok) {
         throw new Error(data.error || "Fetching products failed")

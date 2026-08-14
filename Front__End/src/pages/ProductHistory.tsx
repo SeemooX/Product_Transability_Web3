@@ -154,7 +154,7 @@ export const ProductHistory = () => {
                                 </p>
 
                                 <p className="text-xs text-gray-500">
-                                    {step.code}
+                                    {step.code.length >= 11 ? step.code.slice(0, 11) + "..." : step.code}
                                 </p>
                             </div>
 
@@ -196,9 +196,9 @@ export const ProductHistory = () => {
                             </div>
 
                             {/* Arrow */}
-                            <div className="flex items-start justify-end">
+                            {/* <div className="flex items-start justify-end">
                                 <ChevronRight size={18} className="mt-1 text-gray-400" />
-                            </div>
+                            </div> */}
 
                         </div>
                     ))}

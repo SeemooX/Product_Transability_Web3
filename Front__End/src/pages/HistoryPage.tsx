@@ -239,7 +239,7 @@ export const HistoryPage = () => {
                                 <p className={`font-semibold text-sm ${statusColors[product.currentStatus] ??
                                     "text-gray-500"
                                     }`}>
-                                    {product.currentStatus}
+                                    {product.currentStatus.slice(0, 11)}...
                                 </p>
 
                                 <p className="text-xs text-gray-400 mt-1">

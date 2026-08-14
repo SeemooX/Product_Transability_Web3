@@ -2,6 +2,8 @@ const productQueries = require('../Queries/productQueries');
 
 const getTransporterAvailableProduct = async (req, res) => {
     try {
+        const userID = req.id;
+
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
 
@@ -14,7 +16,8 @@ const getTransporterAvailableProduct = async (req, res) => {
             limit,
             offset,
             search,
-            sort
+            sort,
+            userID
         );
 
         if (products == null) {
@@ -23,7 +26,7 @@ const getTransporterAvailableProduct = async (req, res) => {
             });
         }
 
-        const totalProducts = await productQueries.countAvailableProducts(search);
+        const totalProducts = await productQueries.countAvailableProducts(search, userID);
 
         return res.status(200).json({
             products,

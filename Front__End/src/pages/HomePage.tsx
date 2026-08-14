@@ -167,34 +167,37 @@ export const HomePage = () => {
 
           <div className="bg-white rounded-3xl shadow divide-y">
             {products.map((product) => (
-              <div
-                key={product.id_product}
-                className="flex justify-between items-center p-4"
-              >
-                <div className="flex gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
-                    <Package size={22} />
+              <Link to={`/products/${product.id_product}`}>
+                <div
+                  key={product.id_product}
+                  className="flex justify-between items-center p-4"
+                >
+                  <div className="flex gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+                      <Package size={22} />
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold">{product.name}</h3>
+                      <p className="text-gray-500 text-sm">
+                        {product.reference}
+                      </p>
+                    </div>
                   </div>
 
-                  <div>
-                    <h3 className="font-semibold">{product.name}</h3>
-                    <p className="text-gray-500 text-sm">
-                      {product.reference}
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-sm font-medium ${statusColors[product.currentStatus] ?? "text-gray-500"}`}>
+                      {product.currentStatus.slice(0, 11)}...
+                    </span>
+
+                    <ChevronRight
+                      size={18}
+                      className="text-gray-400"
+                    />
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className={`text-sm font-medium ${statusColors[product.currentStatus] ?? "text-gray-500"}`}>
-                    {product.currentStatus}
-                  </span>
-
-                  <ChevronRight
-                    size={18}
-                    className="text-gray-400"
-                  />
-                </div>
-              </div>
+              </Link>
             ))}
           </div>
 

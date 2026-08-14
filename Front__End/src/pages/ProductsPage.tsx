@@ -215,10 +215,15 @@ export const ProductsPage = () => {
                 {products.map((product) => (
                     <Link
                         key={product.id_product}
-                        to={role.toLowerCase() !== "transporter" ? `/products/${product.id_product}` : `/products/addstep/${product.id_product}`}
+                        to={
+                            role.toLowerCase() === "manufacturer"
+                                ? `/products/${product.id_product}`
+                                : `/products/addstep/${product.id_product}`
+                        }
                         className="block"
                     >
                         <div className="bg-white rounded-2xl p-4 shadow-sm flex justify-between items-center transition hover:shadow-md active:scale-[0.98]">
+
                             <div className="flex gap-4">
                                 <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
                                     <Package size={22} />
@@ -236,16 +241,19 @@ export const ProductsPage = () => {
                             </div>
 
                             <div className="text-right">
-                                <p className={`font-semibold text-sm ${statusColors[product.currentStatus] ??
-                                    "text-gray-500"
-                                    }`}>
-                                    {product.currentStatus}
+                                <p
+                                    className={`font-semibold text-sm ${statusColors[product.currentStatus] ??
+                                        "text-gray-500"
+                                        }`}
+                                >
+                                    {product.currentStatus.slice(0, 11)}...
                                 </p>
 
                                 <p className="text-xs text-gray-400 mt-1">
                                     {formatDate(product.createdAt)}
                                 </p>
                             </div>
+
                         </div>
                     </Link>
                 ))}
