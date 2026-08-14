@@ -1,5 +1,5 @@
 import { NavBar } from "@/components/NavBar";
-import { ArrowLeft, SlidersHorizontal, ChevronRight } from "lucide-react";
+import { ArrowLeft, SlidersHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import type { ProductStatusHistory } from "@/types/product";
