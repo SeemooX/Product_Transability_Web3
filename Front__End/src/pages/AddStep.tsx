@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Select,
     SelectContent,
@@ -19,6 +19,7 @@ import { useAuth } from "@/context/AuthContext";
 import { storeStatus, transporterStatus, warehouseStatus } from "@/utils/addTrace";
 import { useProductContract } from "@/hooks/useProductContract";
 import { addTraceabilityProductFlow } from "@/services/product.service";
+import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 
 export const AddStep = () => {
     const { id } = useParams();
@@ -33,6 +34,8 @@ export const AddStep = () => {
     const [isModifying, setIsModifying] = useState(false);
 
     const { role } = useAuth();
+    const { isConnected } = useAppKitAccount();
+    const { open, /* close */ } = useAppKit();
     const { getContract } = useProductContract();
 
     const statusOptions =
@@ -53,6 +56,15 @@ export const AddStep = () => {
         READY_FOR_DISPATCH: "Prêt pour expédition",
         AVAILABLE_FOR_SALE: "Disponible à la vente",
     };
+
+    useEffect(() => {
+        if (!isConnected) {
+            open({
+                view: "Connect",
+                namespace: "eip155",
+            });
+        }
+    }, [isConnected, open]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

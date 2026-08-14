@@ -1,22 +1,45 @@
 import { useState } from "react";
-import { ArrowLeft, Eye, EyeOff, UserPlus } from "lucide-react";
+import { ArrowLeft, Check, Eye, EyeOff, UserPlus, X } from "lucide-react";
 import { createUser } from "@/api/authenticationApi";
-import { useNavigate } from "react-router";
+/* import { useNavigate } from "react-router"; */
 import type { UserForm } from "@/types/userForm";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import type { Role } from "@/types/roles";
 
 export default function CreateUser() {
-    const navigate = useNavigate();
+    /* const navigate = useNavigate(); */
     const [showPassword, setShowPassword] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showFailure, setShowFailure] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [createdUser, setCreatedUser] = useState<{
+        fullName: string;
+        email: string;
+    } | null>(null);
 
     const [form, setForm] = useState<UserForm>({
         fullName: "",
         email: "",
         password: "",
         confirmPassword: "",
-        role: "FABRICANT",
+        role: "MANUFACTURER",
         walletAddress: "",
         companyName: "",
     });
+
+    const roleLabels: Record<Role, string> = {
+        MANUFACTURER: "Fabricant",
+        TRANSPORTEUR: "Transporteur",
+        ADMIN: "Administrateur",
+        WAREHOUSE: "Entrepôt",
+        STORE: "Magasin",
+    };
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -39,17 +62,21 @@ export default function CreateUser() {
 
         try {
             const data = await createUser(form);
+            if (data) {
+                setCreatedUser(data.user);
+                setShowSuccess(true);
+            }
 
-            alert(data.success);
-
-            navigate("/home");
+            /* navigate("/home"); */
         } catch (error: any) {
             console.error(error);
-
-            alert(error.message || "Registration failed");
+            setErrorMessage(
+                error?.message ||
+                "Une erreur est survenue lors de la création de l'utilisateur."
+            );
+            setShowFailure(true);
         }
     };
-
 
     return (
         <div className="min-h-screen bg-gray-100 max-w-md mx-auto flex flex-col">
@@ -111,18 +138,27 @@ export default function CreateUser() {
 
                         <div>
                             <label className="block text-sm font-medium mb-2">Rôle</label>
-                            <select
-                                name="role"
+                            <Select
                                 value={form.role}
-                                onChange={handleChange}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-green-500"
+                                onValueChange={(value) => {
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        role: value as Role,
+                                    }));
+                                }}
                             >
-                                <option value="FABRICANT">Fabricant</option>
-                                <option value="TRANSPORTEUR">Transporteur</option>
-                                <option value="ENTREPOT">Entrepôt</option>
-                                <option value="DISTRIBUTEUR">Distributeur</option>
-                                <option value="CLIENT">Client</option>
-                            </select>
+                                <SelectTrigger className="w-full h-auto bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-green-500 focus:ring-0 focus:ring-offset-0 font-normal text-gray-900">
+                                    <SelectValue placeholder="Sélectionner un rôle" />
+                                </SelectTrigger>
+
+                                <SelectContent className="rounded-xl border border-gray-200 bg-white">
+                                    {Object.entries(roleLabels).map(([role, label]) => (
+                                        <SelectItem key={role} value={role} className="px-4 py-3 cursor-pointer rounded-lg focus:bg-green-50 focus:text-green-700">
+                                            {label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <div>
@@ -219,6 +255,76 @@ export default function CreateUser() {
                     </button>
                 </form>
             </main>
+
+            {showSuccess && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-5">
+
+                    <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl">
+
+                        {/* Success icon */}
+
+                        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                            <Check
+                                size={32}
+                                className="text-green-600"
+                            />
+                        </div>
+
+                        <h2 className="text-xl font-bold text-gray-900">
+                            Utilisateur {createdUser?.fullName} ajouté avec succès
+                        </h2>
+
+                        <p className="mt-2 text-sm text-gray-500">
+                            La creation de l'utilisateur  {createdUser?.fullName} a été enregistré avec succès
+                            dans le système.
+                        </p>
+
+                        <button
+                            type="button"
+                            onClick={() => setShowSuccess(false)}
+                            className="mt-6 w-full rounded-2xl bg-green-600 py-3.5 font-semibold text-white transition active:scale-95"
+                        >
+                            Continuer
+                        </button>
+
+                    </div>
+
+                </div>
+            )}
+
+            {showFailure && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-5">
+
+                    <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl">
+
+                        {/* Failure icon */}
+                        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                            <X
+                                size={32}
+                                className="text-red-600"
+                            />
+                        </div>
+
+                        <h2 className="text-xl font-bold text-gray-900">
+                            Échec de la creation
+                        </h2>
+
+                        <p className="mt-2 text-sm text-gray-500">
+                            {errorMessage}
+                        </p>
+
+                        <button
+                            type="button"
+                            onClick={() => setShowFailure(false)}
+                            className="mt-6 w-full rounded-2xl bg-red-600 py-3.5 font-semibold text-white transition active:scale-95"
+                        >
+                            Fermer
+                        </button>
+
+                    </div>
+
+                </div>
+            )}
         </div>
     );
 }

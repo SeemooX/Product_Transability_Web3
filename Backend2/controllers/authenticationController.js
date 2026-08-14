@@ -12,6 +12,8 @@ const createUser = async (req, res) => {
     if (!fullName || typeof fullName !== "string" || fullName.trim() === "")
         return res.status(400).json({ message: "full name is required and must be a string" });
 
+    role = role.toUpperCase();
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         return res.status(400).json({ message: 'Invalid email format' });
@@ -37,8 +39,8 @@ const createUser = async (req, res) => {
                 message: "This account is already registered"
             });
         }
-
-        const passwordHash = await bcrypt.hash(password, 10);
+                
+        const passwordHash = await bcrypt.hash(password, 10);        
 
         const addedUser = await userQueries.createUser({ fullName, email, passwordHash, role, walletAddress, companyName });
         const user = {

@@ -2,7 +2,7 @@ import { Navigate, useLocation } from "react-router";
 import { useAuth } from "./AuthContext";
 
 export const ProtectedRoute = ({ children }: any) => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, role } = useAuth();
   const location = useLocation();
 
   if (!isLoggedIn) {
@@ -13,6 +13,10 @@ export const ProtectedRoute = ({ children }: any) => {
         replace
       />
     );
+  }
+
+  if (role.toLowerCase() === "admin") {
+    return <Navigate to="/createUser" />;
   }
 
   return children;

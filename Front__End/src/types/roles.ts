@@ -1,1 +1,1 @@
-export type Role = "FABRICANT" | "TRANSPORTEUR" | "ENTREPOT" | "DISTRIBUTEUR" | "CLIENT";
+export type Role = "MANUFACTURER" | "TRANSPORTEUR" | "ADMIN" | "WAREHOUSE" | "STORE";

@@ -9,7 +9,7 @@ export const AdminRoute = ({ children }: any) => {
     }
 
     if (role.toLowerCase() !== "admin") {
-        return <Navigate to="/" />;
+        return <Navigate to="/home" />;
     }
 
     return children;
