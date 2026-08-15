@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     Select,
     SelectContent,
@@ -28,7 +28,8 @@ export const AddStep = () => {
     const [location, setLocation] = useState("Entrepôt Lesquin");
     const [date, setDate] = useState("2024-02-14T16:10");
     const [comment, setComment] = useState("Réception conforme.");
-    const [photo, setPhoto] = useState<string | null>("/images/package.jpg");
+    const [photo, setPhoto] = useState(null); // Actual File object uploaded
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null); // URL used only to dispaly the image
     const [showSuccess, setShowSuccess] = useState(false);
     const [showFailure, setShowFailure] = useState(false);
     const [isModifying, setIsModifying] = useState(false);
@@ -37,6 +38,7 @@ export const AddStep = () => {
     const { isConnected } = useAppKitAccount();
     const { open, /* close */ } = useAppKit();
     const { getContract } = useProductContract();
+    const fileInputRef: any = useRef(null);
 
     const statusOptions =
         role.toUpperCase() === "TRANSPORTER"
@@ -72,12 +74,18 @@ export const AddStep = () => {
         try {
             setIsModifying(true);
 
-            const formData = {
-                status: selectedStatus,
-                location,
-                date,
-                comment
-            };
+            const formData = new FormData();
+
+            formData.append("stepType", selectedStatus);
+            formData.append("location", location);
+            formData.append("date", date);
+            formData.append("notes", comment);
+            console.log(formData.get("stepType"));
+            
+
+            if (photo) {
+                formData.append("photo", photo);
+            }
 
             const contract = await getContract();
 
@@ -93,9 +101,36 @@ export const AddStep = () => {
         }
     };
 
-    const removePhoto = () => {
-        setPhoto(null);
+    const handlePhotoChange = (e: any) => {
+        const file = e.target.files?.[0];
+
+        if (!file) return;
+
+        // Validation
+        if (!file.type.startsWith("image/")) {
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            return;
+        }
+
+        setPhoto(file);
+        const previewUrl = URL.createObjectURL(file);
+        setPhotoPreview(previewUrl);
     };
+
+    const removePhoto = () => {
+        if (photoPreview) {
+            URL.revokeObjectURL(photoPreview);
+        }
+
+        setPhoto(null);
+        setPhotoPreview(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    }
 
     return (
         <div className="flex min-h-screen flex-col bg-gray-50">
@@ -249,14 +284,23 @@ export const AddStep = () => {
                             Photo (optionnel)
                         </label>
 
+                        {/* Hidden file input */}
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            capture="environment"
+                            onChange={handlePhotoChange}
+                            className="hidden"
+                        />
+
                         <div className="flex items-center justify-between">
 
                             {/* Preview */}
-                            {photo ? (
+                            {photoPreview ? (
                                 <div className="relative h-24 w-24 overflow-hidden rounded-xl border bg-gray-200">
-
                                     <img
-                                        src={photo}
+                                        src={photoPreview}
                                         alt="Package"
                                         className="h-full w-full object-cover"
                                     />
@@ -271,7 +315,6 @@ export const AddStep = () => {
                                             className="text-white"
                                         />
                                     </button>
-
                                 </div>
                             ) : (
                                 <div className="flex h-24 w-24 items-center justify-center rounded-xl border bg-gray-100 text-xs text-gray-400">
@@ -282,6 +325,7 @@ export const AddStep = () => {
                             {/* Camera */}
                             <button
                                 type="button"
+                                onClick={() => fileInputRef.current?.click()}
                                 className="flex h-14 w-14 items-center justify-center rounded-xl bg-gray-200 transition active:scale-95"
                             >
                                 <Camera size={24} />

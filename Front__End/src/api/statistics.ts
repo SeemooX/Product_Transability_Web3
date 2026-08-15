@@ -15,8 +15,6 @@ export const getStatistics = async (userRole: any) => {
     )
 
     const data = await response.json();    
-    console.log("statistics: ", data);
-    
 
     if (!response.ok) {
         throw new Error(data.error || "Fetching statistics failed")

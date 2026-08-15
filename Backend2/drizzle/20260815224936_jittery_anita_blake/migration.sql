@@ -1,0 +1,1 @@
+ALTER TABLE "product_status_history" ADD COLUMN "step_photo" text;

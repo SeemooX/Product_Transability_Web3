@@ -11,6 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@imagekit/nodejs": "^7.11.0",
     "@neondatabase/serverless": "^1.1.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
@@ -20,7 +21,7 @@
     "ethers": "^6.17.0",
     "express": "^5.2.1",
     "express-validator": "^7.3.2",
-    "imagekit": "^6.0.0",
+    "file-type": "^22.0.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",
     "nodemailer": "^9.0.3",

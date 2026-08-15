@@ -11,15 +11,17 @@ const insertProductStatusHistory = async (client, data) => {
             step_type_id,
             performed_by,
             location,
+            step_photo,
             tx_hash
         )
-        VALUES ($1,$2,$3,$4,$5)
+        VALUES ($1,$2,$3,$4,$5, $6)
         `,
         [
             data.productId,
             data.stepTypeId,
             data.performedBy,
             data.location,
+            data.stepPhoto,
             data.txHash
         ]
     );

@@ -38,8 +38,6 @@ export const getHomeProducts = async (userRole: any, page: any, debouncedSearch:
     )
 
     const data = await response.json();
-    console.log("launched: ", data);
-    
 
     if (!response.ok) {
         throw new Error(data.error || "Fetching products failed")
@@ -59,7 +57,7 @@ export const getProductDetails = async (productId: any) => {
         }
     )
 
-    const data = await response.json();    
+    const data = await response.json();
 
     if (!response.ok) {
         throw new Error(data.error || "Fetching products details failed")
@@ -79,7 +77,7 @@ export const getProductHistory = async (productId: any) => {
         }
     )
 
-    const data = await response.json();    
+    const data = await response.json();
 
     if (!response.ok) {
         throw new Error(data.error || "Fetching products history failed")
@@ -88,7 +86,7 @@ export const getProductHistory = async (productId: any) => {
     return data.history;
 }
 
-export const prepareTraceProduct = async (productId: any, productData: any) => {    
+export const prepareTraceProduct = async (productId: any, productData: any) => {
     const response = await fetch(
         `${apiURL}/products/${productId}/trace/prepare`,
         {
@@ -111,15 +109,16 @@ export const prepareTraceProduct = async (productId: any, productData: any) => {
 }
 
 export const confirmTraceProduct = async (productId: any, productData: any) => {
+    console.log("here: ", productData);
+
     const response = await fetch(
         `${apiURL}/products/${productId}/trace/confirm`,
         {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
                 Authorization: `Bearer ${localStorage.getItem("token")}`
             },
-            body: JSON.stringify(productData) // { productID, txHash, name, reference, serialNumber, description }
+            body: productData
         }
     )
 

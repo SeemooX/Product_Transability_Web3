@@ -39,9 +39,9 @@ export const addTraceabilityProductFlow = async (
 ) => {
     try {
         const preparedProductData = {
-            stepType: productData.status,
-            location: productData.location,
-            notes: productData.comment,
+            stepType: productData.get("stepType"),
+            location: productData.get("location"),
+            notes: productData.get("notes"),
         };
 
         const preparedProduct = await prepareTraceProduct(
@@ -55,7 +55,7 @@ export const addTraceabilityProductFlow = async (
 
         const blockchainProductData = {
             id: productId,
-            stepType: productData.status,
+            stepType: productData.get("stepType"),
             eventHash: preparedProduct.eventHash,
         };
 
@@ -70,13 +70,8 @@ export const addTraceabilityProductFlow = async (
             );
         }
 
-        const confirmedProductData = {
-            stepType: productData.status,
-            location: productData.location,
-            notes: productData.comment,
-            txHash,
-        };
-
+        productData.append("txHash", txHash);
+        const confirmedProductData = productData;
         const confirmedTrace = await confirmTraceProduct(
             productId,
             confirmedProductData

@@ -8,7 +8,7 @@ import {
   Check
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import type { ProductMan } from "@/types/product";
 import { formatDate } from "@/utils/formateDate";
 import { useAuth } from "@/context/AuthContext";
@@ -18,7 +18,9 @@ export default function ProductDetails() {
   const [productDetails, setProductDetails] = useState<ProductMan>();
   const [infos, setInfos] = useState(false);
   const [loading, setLoading] = useState(true);
+
   const { role } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const bringedDetails = async () => {
@@ -61,9 +63,9 @@ export default function ProductDetails() {
       {/* Header */}
       <header className="bg-white px-5 pt-10 pb-5 shadow-sm">
         <div className="flex items-center justify-between">
-          <Link to="/products">
+          <button onClick={() => navigate(-1)}>
             <ArrowLeft size={22} />
-          </Link>
+          </button>
 
           <h1 className="text-lg font-semibold">
             Détail du produit

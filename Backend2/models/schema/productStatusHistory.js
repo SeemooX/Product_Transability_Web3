@@ -10,6 +10,7 @@ export const productStatusHistory = pgTable("product_status_history", {
     performedBy: uuid("performed_by").references(() => users.id_user).notNull(),
     location: varchar("location", { length: 255, }),
     notes: text("notes"),
+    stepPhoto: text("step_photo"),
     txHash: varchar("tx_hash", { length: 66, }).unique(),
     createdAt: timestamp("created_at", { withTimezone: true, }).defaultNow().notNull(),
 },

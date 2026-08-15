@@ -6,6 +6,10 @@ const productStatusHistoryQueries = require('../Queries/productStatusHistoryQuer
 const userQueries = require('../Queries/userQueries');
 const { hashMetadata } = require('../utils/hashMetadata');
 const { CONTRACT_FUNCTIONS } = require('../utils/contractABI');
+const imageKitClient = require('../config/imageKit');
+const { fileTypeFromBuffer } = require("file-type");
+const { toFile } = require('@imagekit/nodejs');
+const { uuid } = require('drizzle-orm/pg-core');
 
 const prepareTraceProduct = async (req, res) => {
     try {
@@ -223,6 +227,31 @@ const confirmTraceProduct = async (req, res) => {
             });
         }
 
+        let imageUrl = null;
+        let imageFileId = null;
+
+        // Validation
+        if (req.file) {
+            const type = await fileTypeFromBuffer(req.file.buffer);
+
+            if (!type || !["jpg", "png", "webp"].includes(type.ext)) {
+                return res.status(400).json({
+                    message: "Invalid image file",
+                });
+            }
+            const fileName = `${uuid()}.jpg`
+
+            const uploaded = await imageKitClient.files.upload({
+                file: await toFile(req.file.buffer, fileName),
+                fileName,
+                folder: "/TraceabilitySteps",
+                useUniqueFileName: true
+            });
+
+            imageUrl = uploaded.url;
+            /* imageFileId = uploaded.fileId; */ // Used to indentify the image to delete in imagkit, and it needs to be stored in the DB also. however it is not needed in this app
+        }
+
         const client = await pool.connect();
 
         try {
@@ -247,6 +276,7 @@ const confirmTraceProduct = async (req, res) => {
                     location,
                     performedBy,
                     notes,
+                    stepPhoto: imageUrl,
                     txHash
                 }
             );
