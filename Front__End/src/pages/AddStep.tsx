@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Select,
     SelectContent,
@@ -9,26 +9,31 @@ import {
 import {
     ArrowLeft,
     CalendarDays,
-    Camera,
+    Camera as CameraIcon,
     Check,
     ChevronDown,
     X,
 } from "lucide-react";
+import {
+    Camera,
+    MediaTypeSelection,
+} from "@capacitor/camera";
 import { Link, useParams } from "react-router";
 import { useAuth } from "@/context/AuthContext";
 import { storeStatus, transporterStatus, warehouseStatus } from "@/utils/addTrace";
 import { useProductContract } from "@/hooks/useProductContract";
 import { addTraceabilityProductFlow } from "@/services/product.service";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
+import { webPathToFile } from "@/utils/webToFile";
+import { ActionSheet, ActionSheetButtonStyle } from "@capacitor/action-sheet";
 
 export const AddStep = () => {
     const { id } = useParams();
-
     const [selectedStatus, setSelectedStatus] = useState("");
     const [location, setLocation] = useState("Entrepôt Lesquin");
     const [date, setDate] = useState("2024-02-14T16:10");
     const [comment, setComment] = useState("Réception conforme.");
-    const [photo, setPhoto] = useState(null); // Actual File object uploaded
+    const [photo, setPhoto] = useState<File | null>(null); // Actual File object uploaded
     const [photoPreview, setPhotoPreview] = useState<string | null>(null); // URL used only to dispaly the image
     const [showSuccess, setShowSuccess] = useState(false);
     const [showFailure, setShowFailure] = useState(false);
@@ -38,7 +43,6 @@ export const AddStep = () => {
     const { isConnected } = useAppKitAccount();
     const { open, /* close */ } = useAppKit();
     const { getContract } = useProductContract();
-    const fileInputRef: any = useRef(null);
 
     const statusOptions =
         role.toUpperCase() === "TRANSPORTER"
@@ -81,7 +85,7 @@ export const AddStep = () => {
             formData.append("date", date);
             formData.append("notes", comment);
             console.log(formData.get("stepType"));
-            
+
 
             if (photo) {
                 formData.append("photo", photo);
@@ -101,35 +105,87 @@ export const AddStep = () => {
         }
     };
 
-    const handlePhotoChange = (e: any) => {
-        const file = e.target.files?.[0];
+    const takePhoto = async () => {
+        try {
+            const result: any = await Camera.takePhoto({
+                quality: 90,
+                includeMetadata: true,
+            });
 
-        if (!file) return;
+            const file: File = await webPathToFile(
+                result.webPath,
+                `photo-${Date.now()}.jpg`
+            );
 
-        // Validation
-        if (!file.type.startsWith("image/")) {
-            return;
+            if (file.size > 5 * 1024 * 1024) {
+                return;
+            }
+
+            setPhoto(file);
+            setPhotoPreview(result.webPath);
+        } catch (error) {
+            console.error("Failed to take photo:", error);
+        }
+    };
+
+    const chooseFromGallery = async () => {
+        try {
+            const { results } = await Camera.chooseFromGallery({
+                mediaType: MediaTypeSelection.Photo,
+                allowMultipleSelection: false,
+                limit: 1,
+                includeMetadata: true,
+            });
+
+            const result: any = results[0];
+
+            if (!result) return;
+
+            const file: File = await webPathToFile(
+                result.webPath,
+                `photo-${Date.now()}.jpg`
+            );
+
+            if (file.size > 5 * 1024 * 1024) {
+                return;
+            }
+
+            setPhoto(file);
+            setPhotoPreview(result.webPath);
+        } catch (error) {
+            console.error("Failed to choose photo:", error);
+        }
+    };
+
+    const openPhotoOptions = async () => {
+        const result = await ActionSheet.showActions({
+            title: "Ajouter une photo",
+            options: [
+                {
+                    title: "Prendre une photo",
+                },
+                {
+                    title: "Choisir dans la galerie",
+                },
+                {
+                    title: "Annuler",
+                    style: ActionSheetButtonStyle.Destructive,
+                },
+            ],
+        });
+
+        if (result.index === 0) {
+            await takePhoto();
         }
 
-        if (file.size > 5 * 1024 * 1024) {
-            return;
+        if (result.index === 1) {
+            await chooseFromGallery();
         }
-
-        setPhoto(file);
-        const previewUrl = URL.createObjectURL(file);
-        setPhotoPreview(previewUrl);
     };
 
     const removePhoto = () => {
-        if (photoPreview) {
-            URL.revokeObjectURL(photoPreview);
-        }
-
         setPhoto(null);
         setPhotoPreview(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
     }
 
     return (
@@ -284,16 +340,6 @@ export const AddStep = () => {
                             Photo (optionnel)
                         </label>
 
-                        {/* Hidden file input */}
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            capture="environment"
-                            onChange={handlePhotoChange}
-                            className="hidden"
-                        />
-
                         <div className="flex items-center justify-between">
 
                             {/* Preview */}
@@ -325,12 +371,11 @@ export const AddStep = () => {
                             {/* Camera */}
                             <button
                                 type="button"
-                                onClick={() => fileInputRef.current?.click()}
+                                onClick={openPhotoOptions}
                                 className="flex h-14 w-14 items-center justify-center rounded-xl bg-gray-200 transition active:scale-95"
                             >
-                                <Camera size={24} />
+                                <CameraIcon size={24} />
                             </button>
-
                         </div>
                     </div>
 
