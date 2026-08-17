@@ -1,4 +1,4 @@
-const apiURL = import.meta.env.VITE_MOBILE_API_URL;
+const apiURL = import.meta.env.VITE_BROWSER_API_URL;
 
 export const getProducts = async (userRole: any, page: any, debouncedSearch: any, sort: any) => {
     const normalizedUserRole = userRole.toLowerCase();

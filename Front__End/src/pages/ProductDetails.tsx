@@ -5,7 +5,9 @@ import {
   Share2,
   ChevronRight,
   ShieldCheck,
-  Check
+  Check,
+  Package,
+  ImageOff
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
@@ -26,6 +28,8 @@ export default function ProductDetails() {
     const bringedDetails = async () => {
       try {
         const data = await getProductDetails(id);
+        data.qrCode = data.qrCode.replace(/^"|"$/g, "");
+
         setProductDetails(data);
       } catch (error) {
         console.error(error);
@@ -84,11 +88,19 @@ export default function ProductDetails() {
 
           <div className="flex gap-4">
 
-            <img
-              src="/images/drill.png"
-              alt="Bosch Drill"
-              className="w-24 h-24 object-contain"
-            />
+            {productDetails?.productPhoto ? (
+
+              <div className="relative h-24 w-24 overflow-hidden rounded-xl border bg-gray-200">
+                <img
+                  src={productDetails.productPhoto}
+                  alt="Product"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+
+            ) : (
+              <Package size={48} className="text-gray-400" />
+            )}
 
             <div className="flex-1">
 
@@ -279,9 +291,19 @@ export default function ProductDetails() {
                   QR Code
                 </p>
 
-                <p className="mt-2 text-sm font-mono text-gray-700 break-all">
-                  {productDetails?.qrCode}
-                </p>
+                {productDetails?.qrCode ? (
+                  <div className="mt-2 flex h-48 w-48 items-center justify-center rounded-lg border bg-white p-3 mx-auto">
+                    <img
+                      src={productDetails.qrCode}
+                      alt="Product QR code"
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div className="mt-2 mx-auto flex h-48 w-48 items-center justify-center rounded-lg border bg-gray-50">
+                    <ImageOff className="text-gray-400" size={40} />
+                  </div>
+                )}
               </div>
 
               {/* Metadata Hash */}

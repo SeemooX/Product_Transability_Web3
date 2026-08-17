@@ -1,15 +1,15 @@
 import { prepareProduct, confirmProduct } from "@/api/manufacturer";
 import { confirmTraceProduct, prepareTraceProduct } from "@/api/productApi";
 import { addTraceabilityEvent, createProduct } from "@/blockchain/product.contract";
-interface ProductData {
-    name: string;
-    reference: string;
-    serialNumber: string;
-    description: string;
-}
 
-export const createProductFlow = async (productData: ProductData, ProductTraceContract: any) => {    
-    const preparedProduct = await prepareProduct(productData);
+export const createProductFlow = async (productData: any, ProductTraceContract: any) => { 
+    const preparedProductData = {
+        name: productData.name,
+        reference: productData.reference,
+        serialNumber: productData.serialNumber,
+        description: productData.description,
+    }   
+    const preparedProduct = await prepareProduct(preparedProductData);
     
     const txHash = await createProduct(
         ProductTraceContract,
@@ -20,14 +20,9 @@ export const createProductFlow = async (productData: ProductData, ProductTraceCo
         }
     );
 
-    const confirmedProduct = await confirmProduct({
-        productID: preparedProduct.productID,
-        txHash,
-        name: productData.name,
-        reference: productData.reference,
-        serialNumber: productData.serialNumber,
-        description: productData.description,
-    });
+    productData.append("productID", preparedProduct.productID);
+    productData.append("txHash", txHash);
+    const confirmedProduct = await confirmProduct(productData);
 
     return confirmedProduct;
 };

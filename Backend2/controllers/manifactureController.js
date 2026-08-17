@@ -180,6 +180,29 @@ const confirmProduct = async (req, res) => {
             });
         }
 
+        let imageUrl = null;
+
+        // Validation
+        if (req.file) {
+            const type = await fileTypeFromBuffer(req.file.buffer);
+
+            if (!type || !["jpg", "png", "webp"].includes(type.ext)) {
+                return res.status(400).json({
+                    message: "Invalid image file",
+                });
+            }
+            const fileName = `${uuid()}.jpg`
+
+            const uploaded = await imageKitClient.files.upload({
+                file: await toFile(req.file.buffer, fileName),
+                fileName,
+                folder: "/TraceabilityProducts",
+                useUniqueFileName: true
+            });
+
+            imageUrl = uploaded.url;
+        }
+
         // Drizzle automatically starts BEGIN, COMMIT of things are complete, ROLLBACK if an error is thrown
         const client = await pool.connect();
 
@@ -207,7 +230,8 @@ const confirmProduct = async (req, res) => {
                     description,
                     currentStatus,
                     qrCode,
-                    metadataHash
+                    metadataHash,
+                    productPhoto: imageUrl
                 }
             );
 

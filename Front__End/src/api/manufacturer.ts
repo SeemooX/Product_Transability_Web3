@@ -1,4 +1,4 @@
-const apiURL = import.meta.env.VITE_MOBILE_API_URL;
+const apiURL = import.meta.env.VITE_BROWSER_API_URL;
 
 export const prepareProduct = async (productData: any) => {    
     const response = await fetch(
@@ -28,10 +28,9 @@ export const confirmProduct = async (productData: any) => {
         {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
                 Authorization: `Bearer ${localStorage.getItem("token")}`
             },
-            body: JSON.stringify(productData) // { productID, txHash, name, reference, serialNumber, description }
+            body: productData
         }
     )
 

@@ -13,6 +13,7 @@ const products = pgTable(
         currentStatus: varchar("current_status", { length: 40, }).notNull(),
         qrCode: text("qr_code").unique(),
         metadataHash: varchar("metadata_hash", { length: 66, }),
+        productPhoto: text("product_photo"),
         createdAt: timestamp("created_at", { withTimezone: true, }).defaultNow().notNull(),
         updatedAt: timestamp("updated_at", { withTimezone: true, }).defaultNow().notNull(),
     },

@@ -84,8 +84,6 @@ export const AddStep = () => {
             formData.append("location", location);
             formData.append("date", date);
             formData.append("notes", comment);
-            console.log(formData.get("stepType"));
-
 
             if (photo) {
                 formData.append("photo", photo);

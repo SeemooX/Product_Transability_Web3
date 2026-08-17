@@ -77,9 +77,10 @@ const insertProduct = async (client, data) => {
             description,
             current_status,
             qr_code,
-            metadata_hash
+            metadata_hash,
+            product_photo
         )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
         RETURNING *
         `,
         [
@@ -90,8 +91,9 @@ const insertProduct = async (client, data) => {
             data.serialNumber,
             data.description,
             data.currentStatus,
-            JSON.stringify(data.qrCode),
-            data.metadataHash
+            data.qrCode,
+            data.metadataHash,
+            data.productPhoto
         ]
     );
 

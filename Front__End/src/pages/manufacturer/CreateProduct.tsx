@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, PackagePlus, Check, X } from "lucide-react";
+import { ArrowLeft, PackagePlus, Check, X, Camera as CameraIcon} from "lucide-react";
 import { Link } from "react-router";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useAppKit } from "@reown/appkit/react";
 import { useProductContract } from "@/hooks/useProductContract";
 import { createProductFlow } from "@/services/product.service";
+import {
+  Camera,
+  MediaTypeSelection,
+} from "@capacitor/camera";
+import { webPathToFile } from "@/utils/webToFile";
+import { ActionSheet, ActionSheetButtonStyle } from "@capacitor/action-sheet";
 
 interface ProductForm {
   name: string;
@@ -23,6 +29,8 @@ export default function CreateProduct() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const { isConnected } = useAppKitAccount();
   const { open, /* close */ } = useAppKit();
@@ -54,9 +62,20 @@ export default function CreateProduct() {
     try {
       setIsCreating(true);
 
+      const formData = new FormData();
+
+      formData.append("name", form.name);
+      formData.append("reference", form.reference);
+      formData.append("serialNumber", form.serialNumber);
+      formData.append("description", form.description);
+
+      if (photo) {
+        formData.append("photo", photo);
+      }
+
       const contract = await getContract();
 
-      const result = await createProductFlow(form, contract);
+      const result = await createProductFlow(formData, contract);
 
       if (result) {
         setShowSuccess(true);
@@ -70,6 +89,89 @@ export default function CreateProduct() {
       setIsCreating(false);
     }
   };
+
+  const takePhoto = async () => {
+    try {
+      const result: any = await Camera.takePhoto({
+        quality: 90,
+        includeMetadata: true,
+      });
+
+      const file: File = await webPathToFile(
+        result.webPath,
+        `photo-${Date.now()}.jpg`
+      );
+
+      if (file.size > 5 * 1024 * 1024) {
+        return;
+      }
+
+      setPhoto(file);
+      setPhotoPreview(result.webPath);
+    } catch (error) {
+      console.error("Failed to take photo:", error);
+    }
+  };
+
+  const chooseFromGallery = async () => {
+    try {
+      const { results } = await Camera.chooseFromGallery({
+        mediaType: MediaTypeSelection.Photo,
+        allowMultipleSelection: false,
+        limit: 1,
+        includeMetadata: true,
+      });
+
+      const result: any = results[0];
+
+      if (!result) return;
+
+      const file: File = await webPathToFile(
+        result.webPath,
+        `photo-${Date.now()}.jpg`
+      );
+
+      if (file.size > 5 * 1024 * 1024) {
+        return;
+      }
+
+      setPhoto(file);
+      setPhotoPreview(result.webPath);
+    } catch (error) {
+      console.error("Failed to choose photo:", error);
+    }
+  };
+
+  const openPhotoOptions = async () => {
+    const result = await ActionSheet.showActions({
+      title: "Ajouter une photo",
+      options: [
+        {
+          title: "Prendre une photo",
+        },
+        {
+          title: "Choisir dans la galerie",
+        },
+        {
+          title: "Annuler",
+          style: ActionSheetButtonStyle.Destructive,
+        },
+      ],
+    });
+
+    if (result.index === 0) {
+      await takePhoto();
+    }
+
+    if (result.index === 1) {
+      await chooseFromGallery();
+    }
+  };
+
+  const removePhoto = () => {
+    setPhoto(null);
+    setPhotoPreview(null);
+  }
 
   return (
     <div className="max-w-md mx-auto min-h-screen bg-gray-100 flex flex-col">
@@ -207,8 +309,51 @@ export default function CreateProduct() {
 
           </div>
 
-          {/* Button */}
+          <div>
+            <label className="mb-3 block text-sm font-medium">
+              Photo (optionnel)
+            </label>
 
+            <div className="flex items-center justify-between">
+
+              {/* Preview */}
+              {photoPreview ? (
+                <div className="relative h-24 w-24 overflow-hidden rounded-xl border bg-gray-200">
+                  <img
+                    src={photoPreview}
+                    alt="Package"
+                    className="h-full w-full object-cover"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={removePhoto}
+                    className="absolute left-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60"
+                  >
+                    <X
+                      size={12}
+                      className="text-white"
+                    />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex h-24 w-24 items-center justify-center rounded-xl border bg-gray-100 text-xs text-gray-400">
+                  Aucune photo
+                </div>
+              )}
+
+              {/* Camera */}
+              <button
+                type="button"
+                onClick={openPhotoOptions}
+                className="flex h-14 w-14 items-center justify-center rounded-xl bg-gray-200 transition active:scale-95"
+              >
+                <CameraIcon size={24} />
+              </button>
+            </div>
+          </div>
+
+          {/* Button */}
           <button
             type="submit"
             disabled={isCreating}

@@ -22,6 +22,7 @@ export interface ProductMan {
   currentStatus: string;
   qrCode?: string | null;
   metadataHash?: string | null;
+  productPhoto: string | null;
   createdAt: string;
   updatedAt: string;
   manufacturerName: string;
