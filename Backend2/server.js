@@ -38,7 +38,7 @@ app.use('/store', storeRouter);
 app.use('/products', productRouter);
 
 const startServer = async () => {
-  app.listen(PORT, "127.0.0.1", () => {
+  app.listen(PORT, () => {
     console.log(`Backend running on port ${PORT}`);
   });
 }
