@@ -4,11 +4,11 @@ import { addTraceabilityEvent, createProduct } from "@/blockchain/product.contra
 
 export const createProductFlow = async (productData: any, ProductTraceContract: any) => { 
     const preparedProductData = {
-        name: productData.name,
-        reference: productData.reference,
-        serialNumber: productData.serialNumber,
-        description: productData.description,
-    }   
+        name: productData.get("name"),
+        reference: productData.get("reference"),
+        serialNumber: productData.get("serialNumber"),
+        description: productData.get("description"),
+    }       
     const preparedProduct = await prepareProduct(preparedProductData);
     
     const txHash = await createProduct(

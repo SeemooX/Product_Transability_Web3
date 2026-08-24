@@ -167,7 +167,7 @@ export const HomePage = () => {
 
           <div className="bg-white rounded-3xl shadow divide-y">
             {products.map((product) => (
-              <Link to={`/products/${product.id_product}`}>
+              <Link to={`/products/${product.id_product}`} key={product.id_product}>
                 <div
                   key={product.id_product}
                   className="flex justify-between items-center p-4"

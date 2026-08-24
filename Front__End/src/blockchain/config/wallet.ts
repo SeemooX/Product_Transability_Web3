@@ -1,13 +1,13 @@
 import { createAppKit } from "@reown/appkit/react";
 import { EthersAdapter } from "@reown/appkit-adapter-ethers";
-import { sepolia, hardhat } from "@reown/appkit/networks";
+import { sepolia } from "@reown/appkit/networks";
 import type { AppKitNetwork } from "@reown/appkit/networks";
 
 // 1. Get projectId
 const projectId = import.meta.env.VITE_PROJECT_ID;
 
 // 2. Set the networks
-const networks: [AppKitNetwork, ...AppKitNetwork[]] = [sepolia, hardhat];
+const networks: [AppKitNetwork, ...AppKitNetwork[]] = [sepolia];
 
 // 3. Create a metadata object - optional
 const metadata = {
@@ -21,7 +21,7 @@ const metadata = {
 createAppKit({
   adapters: [new EthersAdapter()],
   networks,
-  defaultNetwork: hardhat,
+  defaultNetwork: sepolia,
   metadata,
   projectId,
   features: {
