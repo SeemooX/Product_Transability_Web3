@@ -14,6 +14,7 @@ import { AdminRoute } from './context/AdminProtectedRoute';
 import CreateUser from './pages/admin/CreateUser';
 import { HistoryPage } from './pages/HistoryPage';
 import CreateProduct from './pages/manufacturer/CreateProduct';
+import { ProfileInformationCard } from './pages/profile/ProfileInformationCard';
 
 export const router = createBrowserRouter([
   {
@@ -102,6 +103,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <AddStep />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/users/me',
+    element: (
+      <ProtectedRoute>
+        <ProfileInformationCard />
       </ProtectedRoute>
     ),
   },

@@ -9,3 +9,12 @@ export interface UserForm {
     walletAddress: string;
     companyName: string;
 }
+
+export type UserData = {
+  fullName: string;
+  email: string;
+  role: string;
+  companyName: string;
+  walletAddress: string;
+  imageUrl?: string | null;
+};

@@ -30,7 +30,9 @@ export const QRScan = () => {
             }
 
             // QR code contains the product ID
-            navigate(`/products/${result.ScanResult}`);
+            const resultObject = JSON.parse(result.ScanResult);
+            const productId = resultObject.productId;
+            navigate(`/products/${productId}`);
         } catch (error: any) {
             console.error("Scanner error:", error);
             setError(

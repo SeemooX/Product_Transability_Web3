@@ -1,5 +1,7 @@
+import { getUser } from "@/api/userApi";
 import { NavBar } from "@/components/NavBar";
 import { useAuth } from "@/context/AuthContext";
+import type { UserData } from "@/types/userForm";
 import {
   User,
   Shield,
@@ -9,19 +11,35 @@ import {
   LogOut,
   ChevronRight
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router";
 
 export const ProfilePage = () => {
+  const [userData, setUserData] = useState<UserData>();
   const { logout } = useAuth();
 
+  useEffect(() => {
+    const bringedUser = async () => {
+      try {
+        const data = await getUser();
+        setUserData(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    bringedUser();
+  }, [])
+
   const accountItems = [
-    { icon: User, label: "Informations personnelles" },
-    { icon: Shield, label: "Sécurité" },
-    { icon: Settings, label: "Préférences" },
+    { icon: User, label: "Informations personnelles", path: "/users/me" },
+    { icon: Shield, label: "Sécurité", path: "security" },
+    { icon: Settings, label: "Préférences", path: "preference" },
   ];
 
   const supportItems = [
-    { icon: CircleHelp, label: "Centre d'aide" },
-    { icon: Mail, label: "Nous contacter" },
+    { icon: CircleHelp, label: "Centre d'aide", path: "help"},
+    { icon: Mail, label: "Nous contacter", path: "contactUs" },
   ];
 
   return (
@@ -32,21 +50,28 @@ export const ProfilePage = () => {
 
         <div className="flex items-center gap-4">
 
-          <div className="rounded-full bg-white p-1 shadow-md">
+          <div className="relative rounded-full bg-white p-1 shadow-md">
             <img
-              src="/images/avatar.png"
+              src={userData?.imageUrl || "/image/user.png"}
               alt="Profile"
-              className="w-16 h-16 rounded-full object-cover"
+              className={`h-16 w-16 rounded-full object-cover ${!userData ? "opacity-40" : ""
+                }`}
             />
+
+            {!userData && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-200 border-t-green-500" />
+              </div>
+            )}
           </div>
 
           <div>
             <h1 className="text-2xl font-bold">
-              Jean Dupont
+              {userData?.fullName}
             </h1>
 
             <p className="mt-1 text-green-100">
-              Fabricant
+              {userData?.role}
             </p>
           </div>
 
@@ -66,14 +91,13 @@ export const ProfilePage = () => {
 
           <div className="divide-y divide-gray-100">
 
-            {accountItems.map(({ icon: Icon, label }, index) => (
-              <button
+            {accountItems.map(({ icon: Icon, label, path }, index) => (
+              <Link
+                to={path}
                 key={index}
                 className="flex w-full items-center justify-between py-4 active:scale-[0.98] transition"
               >
-
                 <div className="flex items-center gap-4">
-
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100">
                     <Icon size={20} className="text-gray-700" />
                   </div>
@@ -81,15 +105,10 @@ export const ProfilePage = () => {
                   <span className="font-medium text-gray-800">
                     {label}
                   </span>
-
                 </div>
 
-                <ChevronRight
-                  size={18}
-                  className="text-gray-400"
-                />
-
-              </button>
+                <ChevronRight size={18} className="text-gray-400" />
+              </Link>
             ))}
 
           </div>
