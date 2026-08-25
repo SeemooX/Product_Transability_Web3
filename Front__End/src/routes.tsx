@@ -15,6 +15,10 @@ import CreateUser from './pages/admin/CreateUser';
 import { HistoryPage } from './pages/HistoryPage';
 import CreateProduct from './pages/manufacturer/CreateProduct';
 import { ProfileInformationCard } from './pages/profile/ProfileInformationCard';
+import { SecurityPage } from './pages/profile/SecurityPage';
+import { PreferencePage } from './pages/profile/PreferencePage';
+import { HelpPage } from './pages/profile/HelpPage';
+import { ContactUsPage } from './pages/profile/ContactUsPage';
 
 export const router = createBrowserRouter([
   {
@@ -111,6 +115,38 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <ProfileInformationCard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/security',
+    element: (
+      <ProtectedRoute>
+        <SecurityPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/preference',
+    element: (
+      <ProtectedRoute>
+        <PreferencePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/help',
+    element: (
+      <ProtectedRoute>
+        <HelpPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/contactUs',
+    element: (
+      <ProtectedRoute>
+        <ContactUsPage />
       </ProtectedRoute>
     ),
   },

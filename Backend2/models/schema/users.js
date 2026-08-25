@@ -19,6 +19,7 @@ const users = pgTable(
         passwordHash: text("password_hash").notNull(),
         role: roleEnum("role").notNull(),
         walletAddress: varchar("wallet_address", { length: 42 }).unique(),
+        imageUrl: text("image_url"),
         companyName: varchar("company_name", { length: 120 }),
         isActive: boolean("is_active").default(true).notNull(),
         createdAt: timestamp("created_at", { withTimezone: true,}).defaultNow().notNull(),

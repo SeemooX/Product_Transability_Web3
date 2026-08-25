@@ -33,13 +33,13 @@ export const ProfilePage = () => {
 
   const accountItems = [
     { icon: User, label: "Informations personnelles", path: "/users/me" },
-    { icon: Shield, label: "Sécurité", path: "security" },
-    { icon: Settings, label: "Préférences", path: "preference" },
+    { icon: Shield, label: "Sécurité", path: "/security" },
+    { icon: Settings, label: "Préférences", path: "/preference" },
   ];
 
   const supportItems = [
-    { icon: CircleHelp, label: "Centre d'aide", path: "help"},
-    { icon: Mail, label: "Nous contacter", path: "contactUs" },
+    { icon: CircleHelp, label: "Centre d'aide", path: "/help"},
+    { icon: Mail, label: "Nous contacter", path: "/contactUs" },
   ];
 
   return (
@@ -124,8 +124,9 @@ export const ProfilePage = () => {
 
           <div className="divide-y divide-gray-100">
 
-            {supportItems.map(({ icon: Icon, label }, index) => (
-              <button
+            {supportItems.map(({ icon: Icon, label, path }, index) => (
+              <Link
+                to={path}
                 key={index}
                 className="flex w-full items-center justify-between py-4 active:scale-[0.98] transition"
               >
@@ -147,7 +148,7 @@ export const ProfilePage = () => {
                   className="text-gray-400"
                 />
 
-              </button>
+              </Link>
             ))}
 
           </div>

@@ -8,6 +8,7 @@ const transporterRouter = require('./routes/api/transporter');
 const warehouseRouter = require('./routes/api/Warehouse');
 const storeRouter = require('./routes/api/Store');
 const productRouter = require('./routes/api/product');
+const usersRouter = require('./routes/api/users');
 const cors = require('cors');
 const { corsOptions } = require('./config/corsOptions');
 const { credentials } = require('./middlewares/credentials');
@@ -36,6 +37,7 @@ app.use('/transporter', transporterRouter);
 app.use('/warehouse', warehouseRouter);
 app.use('/store', storeRouter);
 app.use('/products', productRouter);
+app.use('/users', usersRouter);
 
 const startServer = async () => {
   app.listen(PORT, () => {
