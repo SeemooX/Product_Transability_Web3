@@ -19,6 +19,7 @@ import { SecurityPage } from './pages/profile/SecurityPage';
 import { PreferencePage } from './pages/profile/PreferencePage';
 import { HelpPage } from './pages/profile/HelpPage';
 import { ContactUsPage } from './pages/profile/ContactUsPage';
+import { ProfileRequestPage } from './pages/admin/ProfileRequestPage';
 
 export const router = createBrowserRouter([
   {
@@ -148,6 +149,12 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <ContactUsPage />
       </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/register',
+    element: (
+        <ProfileRequestPage />
     ),
   },
   {
