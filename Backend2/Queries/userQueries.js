@@ -1,6 +1,7 @@
 const {db} = require("../config/dbConnection");
 const { eq } = require("drizzle-orm");
 const { users } = require("../models/schema/users");
+const { profileRequests } = require("../models/schema/profileRequests");
 
 const getUserByEmail = async (email) => {
     const [user] = await db
@@ -54,5 +55,13 @@ const changeUserPassword = async (userId, hashedPassword) => {
     return user;
 };
 
+const createProfileRequest = async (data) => {
+    const [profileRequest] = await db
+        .insert(profileRequests)
+        .values(data)
+        .returning();
 
-module.exports = { getUserByEmail, createUser, changeUserPassword, getUserById, updateUser }
+    return profileRequest;
+};
+
+module.exports = { getUserByEmail, createUser, changeUserPassword, getUserById, updateUser, createProfileRequest }

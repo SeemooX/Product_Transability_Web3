@@ -9,6 +9,7 @@ const warehouseRouter = require('./routes/api/Warehouse');
 const storeRouter = require('./routes/api/Store');
 const productRouter = require('./routes/api/product');
 const usersRouter = require('./routes/api/users');
+const adminRouter = require('./routes/api/Admin');
 const cors = require('cors');
 const { corsOptions } = require('./config/corsOptions');
 const { credentials } = require('./middlewares/credentials');
@@ -38,6 +39,7 @@ app.use('/warehouse', warehouseRouter);
 app.use('/store', storeRouter);
 app.use('/products', productRouter);
 app.use('/users', usersRouter);
+app.use('/admin', adminRouter);
 
 const startServer = async () => {
   app.listen(PORT, () => {

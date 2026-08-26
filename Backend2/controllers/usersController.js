@@ -57,4 +57,50 @@ const updateUserInfos = async (req, res) => {
         });
     }
 };
-module.exports = { getUser, updateUserInfos }
+
+const requestForAccount = async (req, res) => {
+    try {
+        const { fullName, email, role, walletAddress, companyName } = req.body;
+
+        if (!fullName || !email || !role || !walletAddress) {
+            return res.status(400).json({
+                message: "fullName, email, role and walletAddress are required.",
+            });
+        }
+
+        const allowedRoles = [
+            "MANUFACTURER",
+            "TRANSPORTER",
+            "WAREHOUSE",
+            "STORE",
+        ];
+
+        if (!allowedRoles.includes(role)) {
+            return res.status(400).json({
+                message: "Invalid role.",
+            });
+        }
+
+        const profileRequest = await userQueries.createProfileRequest({
+            fullName,
+            email,
+            role,
+            walletAddress,
+            companyName,
+        });
+
+        return res.status(201).json({
+            message: "Votre demande de création de compte a été envoyée.",
+            data: profileRequest,
+        });
+    } catch (error) {
+        console.error("requestForAccount error:", error);
+        return res.status(500).json({
+            error:
+                error.message ||
+                "Une erreur est survenue lors de la création de votre demande.",
+        });
+    }
+};
+
+module.exports = { getUser, updateUserInfos, requestForAccount }

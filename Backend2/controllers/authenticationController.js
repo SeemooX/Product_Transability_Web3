@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const { v4: uuid } = require('uuid');
 const ethers = require('ethers');
 const jwt = require('jsonwebtoken');
+const sendEmail = require("../utils/emailService")
 
 const createUser = async (req, res) => {
     let { fullName, email, password, role, walletAddress, companyName } = req.body;
@@ -123,7 +124,7 @@ const handleResetRequest = async (req, res) => {
                     <p style="font-size:16px;color:#111827;">Hello,</p>
 
                     <p style="font-size:15px;color:#374151;line-height:1.6;">
-                    We received a request to reset your password for your <strong>ARTWARE Club</strong> account.
+                    We received a request to reset your password for your <strong>TraceProduct APP</strong> account.
                     To proceed, please click the button below to set a new password:
                     </p>
 
