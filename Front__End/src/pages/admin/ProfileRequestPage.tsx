@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Building2, CheckCircle2, Mail,User, Wallet } from "lucide-react";
+import { ArrowLeft, Building2, Check, CheckCircle2, Mail, User, Wallet, X } from "lucide-react";
 import { useNavigate } from "react-router";
 import {
   Select,
@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { requestAccount } from "@/api/userApi";
 
 type UserRole =
   | "MANUFACTURER"
@@ -21,8 +22,10 @@ export const ProfileRequestPage = () => {
   const [role, setRole] = useState<UserRole | "">("");
   const [walletAddress, setWalletAddress] = useState("");
   const [companyName, setCompanyName] = useState("");
-
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showFailure, setShowFailure] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -36,35 +39,28 @@ export const ProfileRequestPage = () => {
     try {
       setIsSubmitting(true);
 
-      const formData = new FormData();
-
-      formData.append("fullName", fullName);
-      formData.append("email", email);
-      formData.append("role", role);
-      formData.append("walletAddress", walletAddress);
-
-      if (companyName.trim()) {
-        formData.append(
-          "companyName",
-          companyName.trim()
-        );
+      let formData = {
+        fullName: fullName,
+        email: email,
+        role: role,
+        walletAddress: walletAddress,
+        companyName: companyName.trim()
       }
 
-      // TODO:
-      // await requestProfileCreation(formData);
-
-      console.log("Profile request:", {
-        fullName,
-        email,
-        role,
-        walletAddress,
-        companyName,
-      });
-    } catch (error) {
+      const result = await requestAccount(formData);
+      if (result) {
+        setShowSuccess(true);
+      }
+    } catch (error: any) {
       console.error(
         "Failed to request profile creation:",
         error
       );
+      setErrorMessage(
+        error?.message ||
+        "Une erreur est survenue lors de la demande."
+      );
+      setShowFailure(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -365,6 +361,78 @@ export const ProfileRequestPage = () => {
           </p>
         </form>
       </main>
+
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-5">
+
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl">
+
+            {/* Success icon */}
+
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <Check
+                size={32}
+                className="text-green-600"
+              />
+            </div>
+
+            <h2 className="text-xl font-bold text-gray-900">
+              Demande envoyée avec succès
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500">
+              La Demande a été envoyée avec succès
+              dans le système.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowSuccess(false);
+              }}
+              className="mt-6 w-full rounded-2xl bg-green-600 py-3.5 font-semibold text-white transition active:scale-95"
+            >
+              Continuer
+            </button>
+
+          </div>
+
+        </div>
+      )}
+
+      {showFailure && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-5">
+
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl">
+
+            {/* Failure icon */}
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+              <X
+                size={32}
+                className="text-red-600"
+              />
+            </div>
+
+            <h2 className="text-xl font-bold text-gray-900">
+              Échec de la demande
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500">
+              {errorMessage}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setShowFailure(false)}
+              className="mt-6 w-full rounded-2xl bg-red-600 py-3.5 font-semibold text-white transition active:scale-95"
+            >
+              Fermer
+            </button>
+
+          </div>
+
+        </div>
+      )}
     </div>
   );
 };

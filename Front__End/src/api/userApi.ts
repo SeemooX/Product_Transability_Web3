@@ -40,3 +40,23 @@ export const changeUser = async (updateUserObject: any) => {
 
     return data;
 };
+
+export const requestAccount = async (requestObject: any) => {
+    const response = await fetch(`${apiURL}/requestforaccount`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestObject)
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || "Requesting for an account failed");
+    }
+
+    return data;
+};
