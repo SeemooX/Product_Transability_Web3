@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Check, ChevronDown, Eye, EyeOff, Lock, Mail, Plus, User, UserRound, X } from "lucide-react";
 import { useNavigate } from "react-router";
 import { acceptAccount, rejectAccount, retrieveAccounts } from "@/api/adminApi";
-import { NavBar } from "@/components/NavBar";
 
 /* type UserRequest = {
     id: string;
