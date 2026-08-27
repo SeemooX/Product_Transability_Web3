@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Check, Eye, EyeOff, UserPlus, X } from "lucide-react";
 import { createUser } from "@/api/authenticationApi";
-/* import { useNavigate } from "react-router"; */
 import type { UserForm } from "@/types/userForm";
 import {
     Select,
@@ -11,6 +10,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import type { Role } from "@/types/roles";
+import { useNavigate } from "react-router";
 
 export default function CreateUser() {
     /* const navigate = useNavigate(); */
@@ -22,6 +22,8 @@ export default function CreateUser() {
         fullName: string;
         email: string;
     } | null>(null);
+
+    const navigate = useNavigate();
 
     const [form, setForm] = useState<UserForm>({
         fullName: "",
@@ -82,7 +84,7 @@ export default function CreateUser() {
         <div className="min-h-screen bg-gray-100 max-w-md mx-auto flex flex-col">
             <header className="bg-white px-5 pt-10 pb-5 shadow-sm">
                 <div className="flex items-center justify-between">
-                    <button type="button">
+                    <button onClick={() => navigate(-1)}>
                         <ArrowLeft size={22} />
                     </button>
 

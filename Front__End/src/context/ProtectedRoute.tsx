@@ -16,7 +16,7 @@ export const ProtectedRoute = ({ children }: any) => {
   }
 
   if (role.toLowerCase() === "admin") {
-    return <Navigate to="/createUser" />;
+    return <Navigate to="/userRequests" />;
   }
 
   return children;

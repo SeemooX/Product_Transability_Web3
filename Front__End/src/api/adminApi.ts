@@ -1,13 +1,34 @@
 const apiURL = import.meta.env.VITE_MOBILE_API_URL;
 
-export const acceptAccount = async (userId: any) => {
+export const retrieveAccounts = async () => {
+    const response = await fetch(`${apiURL}/admin/accounts`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+
+    const data = await response.json();    
+
+    if (!response.ok) {
+        throw new Error(data.error || "Accounts retrieval failed");
+    }
+
+    return data.users;
+};
+
+export const acceptAccount = async (userId: any, password: any) => {
     const response = await fetch(`${apiURL}/admin/accept/${userId}`,
         {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${localStorage.getItem("token")}`
-            }
+            },
+            body: JSON.stringify(password)
         }
     );
 
@@ -17,7 +38,7 @@ export const acceptAccount = async (userId: any) => {
         throw new Error(data.error || "Accepting account failed");
     }
 
-    return data.user;
+    return data;
 };
 
 export const rejectAccount = async (userId: any) => {
@@ -37,5 +58,5 @@ export const rejectAccount = async (userId: any) => {
         throw new Error(data.error || "Rejecting account failed");
     }
 
-    return data.user;
+    return data;
 };

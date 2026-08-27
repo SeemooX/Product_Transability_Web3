@@ -20,6 +20,7 @@ import { PreferencePage } from './pages/profile/PreferencePage';
 import { HelpPage } from './pages/profile/HelpPage';
 import { ContactUsPage } from './pages/profile/ContactUsPage';
 import { ProfileRequestPage } from './pages/ProfileRequestPage';
+import AccountRequests from './pages/admin/AccountRequests';
 
 export const router = createBrowserRouter([
   {
@@ -38,7 +39,12 @@ export const router = createBrowserRouter([
       </PublicOnlyRoute>
     ),
   },
-
+  {
+    path: '/register',
+    element: (
+      <ProfileRequestPage />
+    ),
+  },
   {
     path: '/createProduct',
     element: (
@@ -152,9 +158,11 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/register',
+    path: '/userRequests',
     element: (
-        <ProfileRequestPage />
+      <AdminRoute>
+        <AccountRequests />
+      </AdminRoute>
     ),
   },
   {
