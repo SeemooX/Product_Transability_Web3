@@ -19,7 +19,7 @@ import { SecurityPage } from './pages/profile/SecurityPage';
 import { PreferencePage } from './pages/profile/PreferencePage';
 import { HelpPage } from './pages/profile/HelpPage';
 import { ContactUsPage } from './pages/profile/ContactUsPage';
-import { ProfileRequestPage } from './pages/admin/ProfileRequestPage';
+import { ProfileRequestPage } from './pages/ProfileRequestPage';
 
 export const router = createBrowserRouter([
   {
