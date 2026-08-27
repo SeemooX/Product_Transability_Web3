@@ -9,4 +9,7 @@ adminRouter.route("/accept/:id")
 adminRouter.route("/reject/:id")
     .post(verifyRoles("ADMIN"), adminController.rejectUser);
 
+adminRouter.route("/accounts")
+    .get(verifyRoles("ADMIN"), adminController.getRequestAccounts);
+
 module.exports = adminRouter;

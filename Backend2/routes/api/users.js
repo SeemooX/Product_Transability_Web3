@@ -7,7 +7,4 @@ usersRouter.route('/me')
     .get(verifyRoles("MANUFACTURER", "TRANSPORTER", "WAREHOUSE", "STORE"), usersController.getUser)
     .patch(verifyRoles("MANUFACTURER", "TRANSPORTER", "WAREHOUSE", "STORE"), usersController.updateUserInfos);
 
-usersRouter.route('/requestForAccount')
-    .post(usersController.requestForAccount);
-
 module.exports = usersRouter;

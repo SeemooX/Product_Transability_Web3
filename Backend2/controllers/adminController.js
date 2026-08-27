@@ -58,4 +58,23 @@ const rejectUser = async (req, res) => {
     }
 };
 
-module.exports = { acceptUser, rejectUser }
+const getRequestAccounts = async (req, res) => {
+    try {
+        const requests = await adminQueries.getRequestAccounts();
+
+        return res.status(200).json({
+            message: "Demandes récupérées avec succès.",
+            users: requests,
+        });
+    } catch (error) {
+        console.error("getRequestAccounts error:", error);
+
+        return res.status(500).json({
+            message:
+                error.message ||
+                "Erreur lors de la récupération des demandes.",
+        });
+    }
+};
+
+module.exports = { acceptUser, rejectUser, getRequestAccounts }

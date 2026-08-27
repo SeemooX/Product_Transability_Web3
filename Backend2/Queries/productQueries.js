@@ -519,23 +519,27 @@ const getStoreStatistics = async (userId) => {
     const [stats] = await db
         .select({
             available: sql`
-                count(*)
-                filter (
-                    where ${productStatusHistory.code} in (
-                    'AVAILABLE_FOR_SALE',
+                count(*) filter (
+                    where ${productStatuses.code} in (
+                        'AVAILABLE_FOR_SALE'
                     )
                 )
-                `
+            `,
         })
         .from(productStatusHistory)
         .innerJoin(
             productStatuses,
-            eq(productStatusHistory.stepTypeId, productStatuses.id_product_status)
+            eq(
+                productStatusHistory.stepTypeId,
+                productStatuses.id_product_status
+            )
         )
-        .where(eq(productStatusHistory.performedBy, userId));
+        .where(
+            eq(productStatusHistory.performedBy, userId)
+        );
 
     return stats;
-}
+};
 
 const getProductHistory = async (productId) => {
     const history = await db

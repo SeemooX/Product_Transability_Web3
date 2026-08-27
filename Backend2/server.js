@@ -10,6 +10,7 @@ const storeRouter = require('./routes/api/Store');
 const productRouter = require('./routes/api/product');
 const usersRouter = require('./routes/api/users');
 const adminRouter = require('./routes/api/Admin');
+const usersController = require('./controllers/usersController');
 const cors = require('cors');
 const { corsOptions } = require('./config/corsOptions');
 const { credentials } = require('./middlewares/credentials');
@@ -29,6 +30,7 @@ app.use(cookieParser()); // Let express know how to read cookies attached in a r
 
 app.use('/login', loginRouter);
 app.use('/reset', resetRouter);
+app.use('/requestforaccount', usersController.requestForAccount);
 
 app.use(verifyJWT);
 

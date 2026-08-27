@@ -1,5 +1,5 @@
-const {db} = require("../config/dbConnection");
-const { eq } = require("drizzle-orm");
+const { db } = require("../config/dbConnection");
+const { eq, desc } = require("drizzle-orm");
 const { users } = require("../models/schema/users");
 const { profileRequests } = require("../models/schema/profileRequests");
 
@@ -59,4 +59,14 @@ const rejectUser = async (id) => {
     return updatedRequest;
 };
 
-module.exports = { acceptUser, rejectUser }
+const getRequestAccounts = async () => {
+    const requests = await db
+        .select()
+        .from(profileRequests)
+        .where(eq(profileRequests.status, "PENDING"))
+        .orderBy(desc(profileRequests.createdAt));
+
+    return requests;
+};
+
+module.exports = { acceptUser, rejectUser, getRequestAccounts }
