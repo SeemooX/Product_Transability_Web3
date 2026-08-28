@@ -11,7 +11,6 @@ const { provider } = require('../utils/provider');
 const { fileTypeFromBuffer } = require("file-type");
 
 const prepareProduct = async (req, res) => {
-    console.log("entered prepare");
     try {
         let { name, reference, serialNumber, description } = req.body;
 
@@ -62,7 +61,6 @@ const prepareProduct = async (req, res) => {
         const hashedEventData = hashMetadata(eventDataString);
 
         const productID = uuid();
-        console.log("finished prepare");
 
         return res.status(200).json({ productID, metadataHash: hashedMetaData, eventHash: hashedEventData });
     } catch (error) {
@@ -73,7 +71,6 @@ const prepareProduct = async (req, res) => {
 
 const confirmProduct = async (req, res) => {
     try {
-        console.log("entered CONFIRM");
         let { productID, txHash, name, reference, serialNumber, description } = req.body; // Consider later using Redis cache                
 
         if (!/^[A-Za-z0-9 _-]{1,100}$/.test(name.trim())) {
@@ -256,7 +253,6 @@ const confirmProduct = async (req, res) => {
             );
 
             await client.query("COMMIT");
-            console.log("finished CONFIRM");
 
             return res.status(200).json({
                 message: "Product successfully created"
