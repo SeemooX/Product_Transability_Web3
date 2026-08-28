@@ -5,10 +5,8 @@ const config: CapacitorConfig = {
   appName: 'TraceProduct',
   webDir: 'dist',
 
-  // Just for testing, we will make it http. Later will be taken off
   server: {
-    androidScheme: 'http',
-    cleartext: true,
+    androidScheme: 'https',
   },
 };
 
