@@ -17,6 +17,7 @@ export const addTraceabilityEvent = async (ProductTraceContract: any, productDat
     const eventHash = productData.eventHash;
 
     const transaction = await ProductTraceContract.addTraceabilityEvent(productId, stepType, eventHash);
+    await transaction.wait()
 
     return transaction.hash;
 }

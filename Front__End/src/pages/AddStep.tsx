@@ -38,6 +38,7 @@ export const AddStep = () => {
     const [showSuccess, setShowSuccess] = useState(false);
     const [showFailure, setShowFailure] = useState(false);
     const [isModifying, setIsModifying] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(false);
 
     const { role } = useAuth();
     const { isConnected } = useAppKitAccount();
@@ -95,8 +96,10 @@ export const AddStep = () => {
             if (result) {
                 setShowSuccess(true);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            setErrorMessage(error.message||
+                "Une erreur est survenue lors de l'ajout de l'étape.")
             setShowFailure(true);
         } finally {
             setIsModifying(false);
@@ -444,9 +447,7 @@ export const AddStep = () => {
                         </h2>
 
                         <p className="mt-2 text-sm text-gray-500">
-                            Une erreur est survenue lors de la modification
-                            de la traçabilité du produit.
-                            Veuillez réessayer.
+                            {errorMessage}
                         </p>
 
                         <button

@@ -15,6 +15,9 @@ const metadata = {
   description: "This application is about tracing product in asecure way, and guarentees not tampering happens",
   url: "http://localhost:5173", // origin must match your domain & subdomain
   icons: ["https://avatars.mywebsite.com/"],
+  redirect: {
+    native: "traceproduct://wallet",
+  },
 };
 
 // 4. Create a AppKit instance
