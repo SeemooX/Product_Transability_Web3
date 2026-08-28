@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Building2, Edit, Lock, Mail, Save, User, Wallet, X, } from "lucide-react";
+import { ArrowLeft, Building2, Edit, Lock, Mail, Save, User, UserRound, Wallet, X, } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -163,13 +163,18 @@ export const ProfileInformationCard = () => {
                 <div className="relative flex h-28 w-28 items-center justify-center rounded-full border-4 border-white bg-gray-50 shadow-md">
                   <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-green-500" />
                 </div>
-              ) : (
+              ) : userData.imageUrl ? (
                 /* Avatar */
                 <img
-                  src={userData.imageUrl || "/images/avatar.png"}
+                  src={userData.imageUrl}
                   alt="Profile"
                   className="relative h-28 w-28 rounded-full border-4 border-white object-cover shadow-md"
                 />
+              ) : (
+                /* Default profile icon */
+                <div className="relative flex h-28 w-28 items-center justify-center rounded-full border-4 border-white bg-green-50 shadow-md">
+                  <UserRound className="h-14 w-14 text-green-600" strokeWidth={1.5} />
+                </div>
               )}
             </div>
           </div>

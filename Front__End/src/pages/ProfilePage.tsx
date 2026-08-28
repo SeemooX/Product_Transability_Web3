@@ -1,4 +1,5 @@
 import { getUser } from "@/api/userApi";
+import { AdminNavBar } from "@/components/AdminNavBar";
 import { NavBar } from "@/components/NavBar";
 import { useAuth } from "@/context/AuthContext";
 import type { UserData } from "@/types/userForm";
@@ -9,14 +10,15 @@ import {
   CircleHelp,
   Mail,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  UserRound
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
 export const ProfilePage = () => {
   const [userData, setUserData] = useState<UserData>();
-  const { logout } = useAuth();
+  const { logout, role } = useAuth();
 
   useEffect(() => {
     const bringedUser = async () => {
@@ -38,7 +40,7 @@ export const ProfilePage = () => {
   ];
 
   const supportItems = [
-    { icon: CircleHelp, label: "Centre d'aide", path: "/help"},
+    { icon: CircleHelp, label: "Centre d'aide", path: "/help" },
     { icon: Mail, label: "Nous contacter", path: "/contactUs" },
   ];
 
@@ -50,17 +52,26 @@ export const ProfilePage = () => {
 
         <div className="flex items-center gap-4">
 
-          <div className="relative rounded-full bg-white p-1 shadow-md">
-            <img
-              src={userData?.imageUrl || "/image/user.png"}
-              alt="Profile"
-              className={`h-16 w-16 rounded-full object-cover ${!userData ? "opacity-40" : ""
-                }`}
-            />
-
-            {!userData && (
-              <div className="absolute inset-0 flex items-center justify-center">
+          <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full bg-white p-1 shadow-md">
+            {!userData ? (
+              /* Loading */
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-50">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-200 border-t-green-500" />
+              </div>
+            ) : userData.imageUrl ? (
+              /* Avatar */
+              <img
+                src={userData.imageUrl}
+                alt="Profile"
+                className="h-16 w-16 rounded-full object-cover"
+              />
+            ) : (
+              /* Default profile icon */
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50">
+                <UserRound
+                  className="h-8 w-8 text-green-600"
+                  strokeWidth={1.5}
+                />
               </div>
             )}
           </div>
@@ -163,7 +174,7 @@ export const ProfilePage = () => {
 
       </main>
 
-      <NavBar />
+      {role.toLowerCase() === "admin" ? <AdminNavBar /> : <NavBar />}
 
     </div>
   );

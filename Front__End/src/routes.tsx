@@ -21,6 +21,7 @@ import { HelpPage } from './pages/profile/HelpPage';
 import { ContactUsPage } from './pages/profile/ContactUsPage';
 import { ProfileRequestPage } from './pages/ProfileRequestPage';
 import AccountRequests from './pages/admin/AccountRequests';
+import { SharedProtectedRoute } from './context/SharedProtectedRoute';
 
 export const router = createBrowserRouter([
   {
@@ -96,9 +97,9 @@ export const router = createBrowserRouter([
   {
     path: '/profile',
     element: (
-      <ProtectedRoute>
+      <SharedProtectedRoute>
         <ProfilePage />
-      </ProtectedRoute>
+      </SharedProtectedRoute>
     ),
   },
   {
@@ -120,41 +121,41 @@ export const router = createBrowserRouter([
   {
     path: '/users/me',
     element: (
-      <ProtectedRoute>
+      <SharedProtectedRoute>
         <ProfileInformationCard />
-      </ProtectedRoute>
+      </SharedProtectedRoute>
     ),
   },
   {
     path: '/security',
     element: (
-      <ProtectedRoute>
+      <SharedProtectedRoute>
         <SecurityPage />
-      </ProtectedRoute>
+      </SharedProtectedRoute>
     ),
   },
   {
     path: '/preference',
     element: (
-      <ProtectedRoute>
+      <SharedProtectedRoute>
         <PreferencePage />
-      </ProtectedRoute>
+      </SharedProtectedRoute>
     ),
   },
   {
     path: '/help',
     element: (
-      <ProtectedRoute>
+      <SharedProtectedRoute>
         <HelpPage />
-      </ProtectedRoute>
+      </SharedProtectedRoute>
     ),
   },
   {
     path: '/contactUs',
     element: (
-      <ProtectedRoute>
+      <SharedProtectedRoute>
         <ContactUsPage />
-      </ProtectedRoute>
+      </SharedProtectedRoute>
     ),
   },
   {

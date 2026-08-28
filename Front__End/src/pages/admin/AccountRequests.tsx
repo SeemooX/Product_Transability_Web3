@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Check, ChevronDown, Eye, EyeOff, Lock, Mail, Plus, User, UserRound, X } from "lucide-react";
 import { useNavigate } from "react-router";
 import { acceptAccount, rejectAccount, retrieveAccounts } from "@/api/adminApi";
+import { AdminNavBar } from "@/components/AdminNavBar";
 
 /* type UserRequest = {
     id: string;
@@ -551,7 +552,7 @@ export default function AccountRequests() {
 
                 </div>
             )}
-            {/* <NavBar/> */}
+            <AdminNavBar/>
         </div>
     );
 }
