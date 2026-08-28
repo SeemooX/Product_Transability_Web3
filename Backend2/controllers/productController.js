@@ -12,8 +12,6 @@ const { toFile } = require('@imagekit/nodejs');
 const { uuid } = require('drizzle-orm/pg-core');
 
 const prepareTraceProduct = async (req, res) => {
-    console.log("enter prepare");
-    
     try {
         let { stepType, location, notes } = req.body;
         const { id: productID } = req.params;
@@ -95,7 +93,6 @@ const prepareTraceProduct = async (req, res) => {
         }
         const eventDataString = JSON.stringify(eventData);
         const hashedEventData = hashMetadata(eventDataString);
-        console.log("success prepare");
 
         return res.status(200).json({ productID, eventHash: hashedEventData });
     } catch (error) {
@@ -105,7 +102,6 @@ const prepareTraceProduct = async (req, res) => {
 }
 
 const confirmTraceProduct = async (req, res) => {
-    console.log("entered confirm");
     try {
         let { stepType, location, notes, txHash } = req.body; // Consider later using Redis cache
         const { id: productID } = req.params;
@@ -312,8 +308,6 @@ const confirmTraceProduct = async (req, res) => {
                     error: "Product already exists"
                 });
             }
-            console.log("passed confirm");
-
 
             return res.status(500).json({
                 error: "Product update failed"

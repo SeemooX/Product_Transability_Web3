@@ -8,7 +8,6 @@ const productStatusHistoryQueries = require('../Queries/productStatusHistoryQuer
 const { hashMetadata } = require('../utils/hashMetadata');
 const { CONTRACT_FUNCTIONS } = require('../utils/contractABI');
 const { provider } = require('../utils/provider');
-const { fileTypeFromBuffer } = require("file-type");
 
 const prepareProduct = async (req, res) => {
     try {
