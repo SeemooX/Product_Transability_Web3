@@ -1,6 +1,6 @@
 # Product traceability
 
-This system is built to let manifacturer create product, and for the "transporter, warehouse, and store" to register or change the state the prodcut, by combining both web2 and web3 technologies
+This system is built to let manifacturer create product, and for the "transporter, warehouse, and store" to register or change the state the prodcut, by combining both mobile, web2 and web3 technologies
 
 ## Prerequisites
 
