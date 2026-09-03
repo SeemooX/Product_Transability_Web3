@@ -7,7 +7,8 @@
     "build": "npx hardhat build",
     "deploy-local": "npx hardhat run scripts/ProductTracking.ts --network localhost",
     "deploy-production": "npx hardhat run scripts/ProductTracking.ts --build-profile production --network sepolia",
-    "node": "npx hardhat node"
+    "node": "npx hardhat node",
+    "verify": "npx hardhat verify --network sepolia"
   },
   "keywords": [],
   "author": "",
